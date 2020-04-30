@@ -1,12 +1,9 @@
 # csc322
-project
+
+active teaming system project
 
 # TO START
 
-# git clone https://github.com/Ivan-bin/csc322.git
+source env/bin/activate
 
-# cd csc322
-
-# source env/bin/activate
-
-# python3 app.py
+python3 app.py
