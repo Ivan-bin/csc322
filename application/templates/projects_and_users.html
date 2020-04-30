@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+<article class="media content-section">
+    <div class="media-body">
+        <h1>USERS</h1>
+        {% for user in users.items %}
+        <p class="article-content">{{user.username}}&nbsp;{{user.rating}}</p>
+        {% endfor %}
+    </div>
+</article>
+<article class="media content-section">
+    <div class="media-body">
+        <h1>Projects</h1>
+        {% for project in projects.items %}
+        <p class="article-content">{{project.title }}</p>
+        {% endfor %}
+    </div>
+</article>
+
+
+{% endblock content %}

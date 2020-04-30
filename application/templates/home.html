@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+      <div class="media-body">
+          <h1>Top Three Users</h1>
+          {% for user in users %}
+          <p class="article-content">User: {{user.username }}&emsp; Rating: {{user.rating }}</p>
+          {% endfor %}
+      </div>
+    </article>
+    <article class="media content-section">
+      <div class="media-body">
+          <h1>Top Three Projects</h1>
+          {% for project in projects.items %}
+          <p class="article-content">{{project.title }}</p>
+          {% endfor %}
+      </div>
+    </article>
+{% endblock content %}
