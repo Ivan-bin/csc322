@@ -1,6 +1,6 @@
-# csc322
+# CSC 322
 
-active teaming system project
+Active teaming system project
 
 # TO START
 
