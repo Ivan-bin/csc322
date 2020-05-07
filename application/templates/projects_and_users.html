@@ -2,7 +2,7 @@
 {% block content %}
 <article class="media content-section">
     <div class="media-body">
-        <h1>USERS</h1>
+        <h2>List of All Users</h2>
         {% for user in users.items %}
         <p class="article-content">{{user.username}}&nbsp;{{user.rating}}</p>
         {% endfor %}
@@ -10,12 +10,10 @@
 </article>
 <article class="media content-section">
     <div class="media-body">
-        <h1>Projects</h1>
+        <h2>List of All Projects</h2>
         {% for project in projects.items %}
         <p class="article-content">{{project.title }}</p>
         {% endfor %}
     </div>
 </article>
-
-
 {% endblock content %}

@@ -46,8 +46,8 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     members = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
+    rating = db.Column(db.Integer, nullable =False, default=0)
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Project('{self.title}', '{self.date_created}')"

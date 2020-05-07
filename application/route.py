@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt
-from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
 from application.models import User, Post, Project
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -11,7 +11,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route("/home")
 def home():
     users = User.query.order_by(User.rating.desc()).limit(3).all()
-    projects = Project.query.order_by(Project.id.asc()).all()
+    projects = Project.query.order_by(Project.rating.desc()).limit(3).all()
     return render_template('home.html', users=users,projects=projects)
 
 @app.route("/projects_and_users")
@@ -174,3 +174,25 @@ def reset_token(token):
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+@app.route("/form_group", methods=['GET', 'POST'])
+@login_required
+def form_group():
+    users = User.query.filter(User.id!=current_user.id).all()
+    form = FormGroupForm()
+    if form.validate_on_submit():
+        print(request.form.getlist('members'))
+        members = request.form.getlist('members')
+        if members == []:
+            flash('Must select at least one member','danger')
+            return redirect(url_for('form_group'))
+        flash('Invite(s) has been sent','success')
+        return redirect(url_for('home'))
+    return render_template('form_group.html',form =form,users=users)
+
+@app.route("/message", methods=['GET', 'POST'])
+@login_required
+def message():
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('message.html', posts=posts)

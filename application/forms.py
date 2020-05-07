@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField,TextAreaField, BooleanField,ValidationError
+from wtforms import StringField, PasswordField, SubmitField,TextAreaField, BooleanField,ValidationError, SelectMultipleField, widgets
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from application.models import User
 
@@ -70,3 +70,11 @@ class ResetPasswordForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Request Password Reset')
+
+
+
+
+class FormGroupForm(FlaskForm):
+    title = StringField('Group Title',validators=[DataRequired()])
+    content = TextAreaField('Message (optional)')
+    submit = SubmitField('Send')

@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
+<body>
     <article class="media content-section">
       <div class="media-body">
-          <h1>Top Three Users</h1>
+          <h2>Top Three Users</h2>
           {% for user in users %}
           <p class="article-content">User: {{user.username }}&emsp; Rating: {{user.rating }}</p>
           {% endfor %}
@@ -10,10 +11,11 @@
     </article>
     <article class="media content-section">
       <div class="media-body">
-          <h1>Top Three Projects</h1>
-          {% for project in projects.items %}
-          <p class="article-content">{{project.title }}</p>
+          <h2>Top Three Projects</h2>
+          {% for project in projects %}
+          <p class="article-content">{{project.title }}&emsp; Rating: {{project.rating }}</p>
           {% endfor %}
       </div>
     </article>
+</body>
 {% endblock content %}
