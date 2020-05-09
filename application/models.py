@@ -6,6 +6,20 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+class Application(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+    last_name = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    interest = db.Column(db.Integer,nullable=False)
+    credentials = db.Column(db.String(20), nullable=False)
+    reference = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_pending = db.Column(db.Boolean, default=True, nullable=False)
+    appeal = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.name}', {self.last_name}', '{self.email}', '{self.reference}')"
+
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
