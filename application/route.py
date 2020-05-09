@@ -4,7 +4,7 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
-from application.models import User, Post, Project
+from application.models import Application, ApplicationBlacklist, User, Post, Project
 from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
@@ -32,9 +32,19 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
+        user = Application.query.filter_by(email=form.email.data).first()
+        if user:
+            blacklisted_user = ApplicationBlacklist.query.filter_by(application_id=user.id).first()
+            if blacklisted_user:
+                flash('The email entered has been blacklisted')
+                return redirect(url_for('login'))
+
+            if user.is_pending:
+                flash('Your application still under review, Please try again later')
+                return redirect(url_for('login'))
+       
+        user2 = Application(name=form.name.data, last_name=form.lastName.data, email=form.email.data, interest=form.interest.data, credentials=form.credentials.data, reference=form.reference.data)
+        db.session.add(user2) 
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
