@@ -65,3 +65,12 @@ class Project(db.Model):
     rating = db.Column(db.Integer, nullable =False, default=0)
     def __repr__(self):
         return f"Project('{self.title}', '{self.date_created}')"
+
+
+class ApplicationBlacklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('application.id'), nullable=False)
+    date_blacklisted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"ApplicationBlacklisted('{self.application_id}')"
