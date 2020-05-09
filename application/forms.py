@@ -1,25 +1,26 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField,TextAreaField, BooleanField,ValidationError, SelectMultipleField, widgets
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import StringField, PasswordField, SubmitField,TextAreaField, BooleanField,ValidationError, SelectMultipleField, widgets, SelectField, IntegerField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
 from application.models import User
 
+interestList = [('1', 'a'), ('2', 'b'), ('3', 'c'), ('4', 'd'), ('5', 'e'), ('6', 'f')]
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username',
+    name = StringField('Name',
+                           validators=[DataRequired(), Length(min=2, max=20)])
+    lastName = StringField('Last Name',
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
+    interest = SelectField('Interest', choices=interestList)
+    credentials = StringField('Credentials',
+                           validators=[DataRequired(), Length(min=2, max=50)])
+    reference = IntegerField('Reference', validators=[InputRequired()])
     submit = SubmitField('Sign Up')
+    
 
-    def validate_username(self,username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Taken')
     def validate_email(self,email):
         user = User.query.filter_by(email=email.data).first()
         if user:
