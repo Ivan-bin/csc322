@@ -206,3 +206,8 @@ def message():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template('message.html', posts=posts)
+
+@app.route("/application_list")
+def applications():
+    applications = Application.query.filter_by(is_pending=True).all()
+    return render_template('applications.html', applications=applications)
