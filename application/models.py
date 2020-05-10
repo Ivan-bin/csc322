@@ -29,6 +29,7 @@ class User(db.Model,UserMixin):
     rating = db.Column(db.Integer,nullable=False,default=0)
     posts = db.relationship('Post', backref='author', lazy=True)
     project = db.relationship('Project', backref='member', lazy=True)
+    applications = db.relationship('Application', backref='referee', lazy=True)
 
     def get_reset_token(self,expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'],expires_sec)
