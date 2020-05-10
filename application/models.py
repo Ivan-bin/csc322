@@ -74,3 +74,27 @@ class ApplicationBlacklist(db.Model):
 
     def __repr__(self):
         return f"ApplicationBlacklisted('{self.application_id}')"
+
+class BlackBox(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content=db.Column(db.String(200), nullable=False)
+    date_added=db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"BlackBox('{self.content}', '{self.date_added}')"
+
+class WhiteBox(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content=db.Column(db.String(200), nullable=False)
+    date_included=db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"WhiteBox('{self.content}', '{self.date_included}')"
+
+class TabooWords(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content=db.Column(db.String(200), nullable=False)
+    date_used=db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"TabooWords('{self.content}', '{self.date_used}')"
