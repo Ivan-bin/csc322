@@ -210,4 +210,12 @@ def message():
 @app.route("/application_list")
 def applications():
     applications = Application.query.filter_by(is_pending=True).all()
-    return render_template('applications.html', applications=applications)
+    if applications:
+        return render_template('application_list.html', applications=applications)
+    else:
+        return redirect(url_for('home'))
+
+@app.route("/application_list/<int:application_id>")
+def application(application_id):
+    application = Application.query.get_or_404(application_id)
+    return render_template('application.html', title=application.email, application=application)
