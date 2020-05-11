@@ -6,6 +6,10 @@ from application import app, db, bcrypt
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
 from application.models import Application, ApplicationBlacklist, User, Post, Project
 from flask_login import login_user, current_user, logout_user, login_required
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+API_KEY = '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'
 
 @app.route("/")
 @app.route("/home")
@@ -153,7 +157,35 @@ def delete_post(post_id):
     flash('your post have been delete','success')
     return redirect(url_for('home'))
 
+@app.route("/user/<string:username>")
+def user_posts(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .paginate(page=page, per_page=5)
+    return render_template('user_posts.html', posts=posts, user=user)
 
+
+def send_reset_email(user):
+    token = user.get_reset_token()
+    message = Mail(
+        from_email='noreply@demo.com',
+        to_emails=user.email,
+        subject='Password Reset Request',
+        html_content= f'''To reset your password, visit the following link:
+{url_for('reset_token', token=token, _external=True)}
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    )
+    try:
+        sg = SendGridAPIClient('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')
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e.message)
 
 
 @app.route("/reset_password", methods=['GET', 'POST'])
