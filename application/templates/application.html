@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block content %}
+  <article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="#">{{ application.name + " " + application.last_name }}</a>
+            <div>
+                <button type="button" class="btn btn-success btn-sm m-1" data-toggle="modal" data-target="#approveModal">Approve</button>
+                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#rejectModal">Reject</button>
+            </div>
+        </div>
+        <p class="article-content">Email : {{ application.email }}</p>
+        <p class="article-content">interest :{{ application.interest }}</p>
+        <p class="article-content">Credentials :{{ application.credentials }}</p>
+        <p class="article-content">Reference : {{ application.referee.username}}</p>
+        <p class="article-content">Reference email : {{ application.referee.email}}</p>
+    </div>
+  </article>
+  <!-- Modal -->
+  <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectModalLabel">Reject Application?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('home', application_id=application.id) }}" method="GET">              <!-- need update url_for-->
+            <input class="btn btn-danger" type="submit" value="Reject">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="approveModalLabel">Approve Application?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('home', application_id=application.id) }}" method="GET">              <!-- need update url_for-->
+            <input class="btn btn-danger" type="submit" value="Approve">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
