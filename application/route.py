@@ -179,7 +179,7 @@ If you did not make this request then simply ignore this email and no changes wi
 '''
     )
     try:
-        sg = SendGridAPIClient('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')
+        sg = SendGridAPIClient(API_KEY)
         response = sg.send(message)
         print(response.status_code)
         print(response.body)
