@@ -9,7 +9,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-API_KEY = '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'
+API_KEY = ''
 
 @app.route("/")
 @app.route("/home")
@@ -50,7 +50,7 @@ def register():
         user2 = Application(name=form.name.data, last_name=form.lastName.data, email=form.email.data, interest=form.interest.data, credentials=form.credentials.data, reference=form.reference.data)
         db.session.add(user2) 
         db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
+        flash('Your application has been sent.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -251,3 +251,17 @@ def applications():
 def application(application_id):
     application = Application.query.get_or_404(application_id)
     return render_template('application.html', title=application.email, application=application)
+
+@app.route("/application_list/<int:application_id>/approve", methods=['POST'])
+@login_required
+def approve_application(application_id):
+    application = Application.query.get_or_404(application_id)
+    user = User(username=application.email, email=application.email, password="$2b$12$xRMPe9Z7xLW6f83Ddv4pBeUCnnd8SV8IZvtmX7FwFHsbFd3fQf6Ke")
+    db.session.add(user)
+    application.is_pending = False
+    db.session.commit()
+    user2 = User.query.filter_by(email=user.email).first()
+    send_reset_email(user2)
+
+    flash('The application has been approved.','success')
+    return redirect(url_for('applications'))
