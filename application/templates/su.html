@@ -1,0 +1,27 @@
+{%extends "layout.html"%}
+{%block content%}
+<form class="needs-validation" novalidate>
+    <div class="form-row">
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-primary btn-block" onclick="window.location.href='{{ url_for('applications') }}';">Applications</button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-primary btn-block">Large button</button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-primary btn-block">Large button</button>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-primary btn-block">Large button</button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-primary btn-block">Large button</button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-primary btn-block">Large button</button>
+        </div>
+    </div>
+</form>
+{%endblock%} 
