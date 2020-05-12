@@ -4,7 +4,7 @@
         <article class="media content-section">
             <div class="media-body">
                 <div class="article-metadata">
-                    <a class="mr-2" href="#">{{ application.name + " " + application.last_name }}</a>
+                    <a class="mr-2" href="{{ url_for('application', application_id=application.id) }}">{{ application.name + " " + application.last_name }}</a>
                 </div>
                 <p class="article-content">Email : {{ application.email }}</p>
                 <p class="article-content">interest :{{ application.interest }}</p>
