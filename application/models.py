@@ -2,6 +2,7 @@ from application import db, login_manager, app
 from datetime import datetime
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -30,6 +31,7 @@ class User(db.Model,UserMixin):
     posts = db.relationship('Post', backref='author', lazy=True)
     project = db.relationship('Project', backref='member', lazy=True)
     applications = db.relationship('Application', backref='referee', lazy=True)
+    is_su = db.Column(db.Boolean, default=False, nullable=False)
 
     def get_reset_token(self,expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'],expires_sec)
@@ -76,26 +78,26 @@ class ApplicationBlacklist(db.Model):
     def __repr__(self):
         return f"ApplicationBlacklisted('{self.application_id}')"
 
-class BlackBox(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content=db.Column(db.String(200), nullable=False)
-    date_added=db.Column(db.DateTime, default=datetime.utcnow)
+# class BlackBox(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     content=db.Column(db.String(200), nullable=False)
+#     date_added=db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f"BlackBox('{self.content}', '{self.date_added}')"
+#     def __repr__(self):
+#         return f"BlackBox('{self.content}', '{self.date_added}')"
 
-class WhiteBox(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content=db.Column(db.String(200), nullable=False)
-    date_included=db.Column(db.DateTime, default=datetime.utcnow)
+# class WhiteBox(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     content=db.Column(db.String(200), nullable=False)
+#     date_included=db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f"WhiteBox('{self.content}', '{self.date_included}')"
+#     def __repr__(self):
+#         return f"WhiteBox('{self.content}', '{self.date_included}')"
 
-class TabooWords(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content=db.Column(db.String(200), nullable=False)
-    date_used=db.Column(db.DateTime, default=datetime.utcnow)
+# class TabooWords(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     content=db.Column(db.String(200), nullable=False)
+#     date_used=db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f"TabooWords('{self.content}', '{self.date_used}')"
+#     def __repr__(self):
+#         return f"TabooWords('{self.content}', '{self.date_used}')"
