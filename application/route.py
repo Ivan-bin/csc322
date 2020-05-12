@@ -2,21 +2,20 @@ import os
 import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
-from application import app, db, bcrypt
+from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
 from application.models import Application, ApplicationBlacklist, User, Post, Project
 from flask_login import login_user, current_user, logout_user, login_required
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-
-API_KEY = ''
+from flask_mail import Message
 
 @app.route("/")
 @app.route("/home")
 def home():
+    su_id = current_user.get_id()
+    su = User.query.filter_by(id=su_id).first()
     users = User.query.order_by(User.rating.desc()).limit(3).all()
     projects = Project.query.order_by(Project.rating.desc()).limit(3).all()
-    return render_template('home.html', users=users,projects=projects)
+    return render_template('home.html', users=users,projects=projects, su=su)
 
 @app.route("/projects_and_users")
 def projects_and_users():
@@ -29,6 +28,9 @@ def projects_and_users():
 def about():
     return render_template('about.html', title='About')
 
+@app.route("/su")
+def su():
+    return render_template('su.html', title='SuperUser')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -169,23 +171,14 @@ def user_posts(username):
 
 def send_reset_email(user):
     token = user.get_reset_token()
-    message = Mail(
-        from_email='noreply@demo.com',
-        to_emails=user.email,
-        subject='Password Reset Request',
-        html_content= f'''To reset your password, visit the following link:
+    msg = Message('Password Reset Request',
+                  sender='noreply@demo.com',
+                  recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link:
 {url_for('reset_token', token=token, _external=True)}
 If you did not make this request then simply ignore this email and no changes will be made.
 '''
-    )
-    try:
-        sg = SendGridAPIClient(API_KEY)
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-    except Exception as e:
-        print(e.message)
+    mail.send(msg)
 
 
 @app.route("/reset_password", methods=['GET', 'POST'])
@@ -240,6 +233,7 @@ def message():
     return render_template('message.html', posts=posts)
 
 @app.route("/application_list")
+@login_required
 def applications():
     applications = Application.query.filter_by(is_pending=True).all()
     if applications:
@@ -261,7 +255,17 @@ def approve_application(application_id):
     application.is_pending = False
     db.session.commit()
     user2 = User.query.filter_by(email=user.email).first()
-    send_reset_email(user2)
-
+    send_approvedApplication_email(user2)
     flash('The application has been approved.','success')
     return redirect(url_for('applications'))
+
+def send_approvedApplication_email(user):
+    token = user.get_reset_token()
+    msg = Message('Your Application was Approved',
+                  sender='noreply@demo.com',
+                  recipients=[user.email])
+    msg.body = f'''Congratulations! Your Application has been reviewed and has been approved. To set your new password, visit the following link:
+{url_for('reset_token', token=token, _external=True)}
+Welcome to Active Teaming System.
+'''
+    mail.send(msg)
