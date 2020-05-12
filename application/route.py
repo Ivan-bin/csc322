@@ -11,11 +11,9 @@ from flask_mail import Message
 @app.route("/")
 @app.route("/home")
 def home():
-    su_id = current_user.get_id()
-    su = User.query.filter_by(id=su_id).first()
     users = User.query.order_by(User.rating.desc()).limit(3).all()
     projects = Project.query.order_by(Project.rating.desc()).limit(3).all()
-    return render_template('home.html', users=users,projects=projects, su=su)
+    return render_template('home.html', users=users,projects=projects)
 
 @app.route("/projects_and_users")
 def projects_and_users():
