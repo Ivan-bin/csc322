@@ -4,7 +4,7 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
-from application.models import Application, ApplicationBlacklist, User, Post, Project
+from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -237,7 +237,8 @@ def applications():
     if applications:
         return render_template('application_list.html', applications=applications)
     else:
-        return redirect(url_for('home'))
+        flash('No more applications.', 'info')
+        return render_template('application_list.html', applications=applications)
 
 @app.route("/application_list/<int:application_id>")
 def application(application_id):
@@ -267,3 +268,41 @@ def send_approvedApplication_email(user):
 Welcome to Active Teaming System.
 '''
     mail.send(msg)
+
+@app.route("/compliment_list")
+@login_required
+def compliments():
+    compliments = Compliment.query.filter_by(is_pending=True).all()
+    if compliments:
+        return render_template('compliment_list.html', compliments=compliments)
+    else:
+        flash('No more compliments.', 'info')
+        return render_template('compliment_list.html', compliments=compliments)
+
+@app.route("/compliment_list/<int:compliment_id>")
+def compliment(compliment_id):
+    compliment = Compliment.query.get_or_404(compliment_id)
+    sender = User.query.filter_by(id=compliment.sender_id).first()
+    return render_template('compliment.html', title=compliment.recipient.email, compliment=compliment, sender=sender)
+
+@app.route("/compliment_list/<int:compliment_id>/approve", methods=['POST'])
+@login_required
+def approve_compliment(compliment_id):
+    user_compliment = Compliment.query.get_or_404(compliment_id)
+    user_compliment.is_pending = False
+    user_compliment.recipient.rating += 1
+    db.session.commit()
+    msg = Message('New Complement',
+                  sender='noreply@demo.com',
+                  recipients=[user_compliment.recipient.email])
+    msg.body = f'''Congratulations!
+{user_compliment.recipient.username}
+You have received a new complement.
+"""
+{user_compliment.content}
+"""
+Welcome to Active Teaming System.
+'''
+    mail.send(msg)
+    flash('Compliment has been sent.','success')
+    return redirect(url_for('compliments'))

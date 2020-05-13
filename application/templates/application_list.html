@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+    <h1 class="display-3" style="color:red">Application List</h1>
     {% for application in applications %}
         <article class="media content-section">
             <div class="media-body">
@@ -8,9 +9,6 @@
                 </div>
                 <p class="article-content">Email : {{ application.email }}</p>
                 <p class="article-content">interest :{{ application.interest }}</p>
-                <p class="article-content">Credentials :{{ application.credentials }}</p>
-                <p class="article-content">Reference : {{ application.referee.username}}</p>
-                <p class="article-content">Reference email : {{ application.referee.email}}</p>
             </div>
         </article>
     {% endfor %}

@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1 class="display-3" style="color:red">Compliment List</h1>
+    {% for compliment in compliments %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{{ url_for('compliment', compliment_id=compliment.id) }}">{{ compliment.recipient.username + " - " + compliment.recipient.email }}</a>
+                </div>
+                <p class="article-content">Title : {{ compliment.title }}</p>
+                <p class="article-content">Content :{{ compliment.content }}</p>
+        </article>
+    {% endfor %}
+{% endblock content %}
