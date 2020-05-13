@@ -917,6 +917,7 @@ def invite(group_title):
             if count == len(getid):
                 users += User.query.filter(User.id == u.id).all()
                 count = 1
+                break
             count+=1
     if form.validate_on_submit():
         members = request.form.getlist('members')
