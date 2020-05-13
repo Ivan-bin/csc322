@@ -99,6 +99,11 @@ class MeetingForm(FlaskForm):
     reason = TextAreaField('Meeting Reason (optional)')
     submit = SubmitField('Send')
 
+class VoteSUForm(FlaskForm):
+    vip = User.query.filter(User.is_vip==True).all()
+    time= SelectField('Select',choices=[(v.id, v.username)for v in vip], validators=[DataRequired()])
+    submit = SubmitField('Send')
+
 class KickForm(FlaskForm):
     reason = TextAreaField('Reason',validators=[DataRequired()])
     submit = SubmitField('Send')

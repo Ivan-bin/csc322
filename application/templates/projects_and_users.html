@@ -1,19 +1,53 @@
-{% extends "layout.html" %}
-{% block content %}
-<article class="media content-section">
-    <div class="media-body">
-        <h2>List of All Users</h2>
+{%extends "layout.html"%}
+{%block content%}
+{%if current_user.is_vip == True %}
+  
+{%endif%}
+<h5 style="text-align: left">All Users</h5>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">User</th>
+        <th scope="col">Email</th>
+        <th scope="col">Rating</th>
+        <th scope="col">VIP</th>
+      </tr>
+    </thead>
+    <tbody>
         {% for user in users.items %}
-        <p class="article-content">{{user.username}}&nbsp;{{user.rating}}</p>
-        {% endfor %}
-    </div>
-</article>
-<article class="media content-section">
-    <div class="media-body">
-        <h2>List of All Projects</h2>
-        {% for project in projects.items %}
-        <p class="article-content">{{project.title }}</p>
-        {% endfor %}
-    </div>
-</article>
-{% endblock content %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.rating }}</td>
+            <td>{{ user.is_vip }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <br>
+  <br>
+  <br>
+  <h5 style="text-align: left">All Groups</h5>
+  <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Group</th>
+          <th scope="col">Description</th>
+          <th scope="col">Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for project in projects.items %}
+          <tr>
+              <td>{{ project.id }}</td>
+              <td><a href="{{url_for('grouppage',group_title=project.title )}}" >{{project.title }}</a></td>
+              <td>{{ project.description }}</td>
+              <td>{{ project.rating }}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+{%endblock%} 

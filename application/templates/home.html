@@ -1,5 +1,15 @@
 {%extends "layout.html"%}
 {%block content%}
+{%if current_user.is_vip == True %}
+<form method="POST" action="">
+  {{su.hidden_tag() }}
+  <div class="sidedisplay">
+    <h6 style="text-align: center">Vote for VIP to become SU</h6>
+    <p style="text-align: center">Pick a VIP{{su.time}}</p>
+    <div style="text-align: center">{{ su.submit(class="btn") }}</div>
+</div>
+</form>
+{%endif%}
 <h5 style="text-align: left">Top Three Users</h5>
 <table class="table">
     <thead>

@@ -4,7 +4,7 @@ from PIL import Image
 import datetime
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
-from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, FormGroupForm,PraiseWarningForm,CloseForm,CloseAnswerForm\
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, FormGroupForm,PraiseWarningForm,CloseForm,CloseAnswerForm,VoteSUForm\
     ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1,RequestResetForm,ResetPasswordForm
 from application.models import User, Post, Project, Message1, ProjectMember, Praisewarn,Kick,KickResult ,Close,CloseResult,\
     Whitelist, Blacklist,Application,ApplicationBlacklist, Meeting,MeetingResult, Taboo,PraisewarnResult, WarningList, UserBlacklist,Complaint,Compliment
@@ -39,7 +39,8 @@ def home():
             db.session.commit()
     users = User.query.filter(User.email!='superuser@csc322.edu').order_by(User.rating.desc()).limit(3).all()
     projects = Project.query.order_by(Project.rating.desc()).limit(3).all()
-    return render_template('home.html', users=users,projects=projects)
+    su = VoteSUForm()
+    return render_template('home.html', users=users,projects=projects,su=su)
 
 @app.route("/projects_and_users")
 def projects_and_users():
