@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1 class="display-3" style="color:red">Complaint List</h1>
+    {% for complaint in complaints %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{{ url_for('complaint', complaint_id=complaint.id) }}">{{ complaint.complainee.username + " - " + complaint.complainee.email }}</a>
+                </div>
+                <p class="article-content">Title : {{ complaint.title }}</p>
+                <p class="article-content">Content :{{ complaint.content }}</p>
+        </article>
+    {% endfor %}
+{% endblock content %}

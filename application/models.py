@@ -30,6 +30,7 @@ class User(db.Model,UserMixin):
     rating = db.Column(db.Integer,nullable=False,default=0)
     posts = db.relationship('Post', backref='author', lazy=True)
     compliments = db.relationship('Compliment', backref='recipient', lazy=True)
+    complaints = db.relationship('Complaint', backref='complainee', lazy=True)
     project = db.relationship('Project', backref='member', lazy=True)
     applications = db.relationship('Application', backref='referee', lazy=True)
     is_su = db.Column(db.Boolean, default=False, nullable=False)
@@ -86,6 +87,18 @@ class Compliment(db.Model):
     content = db.Column(db.Text, nullable=False)
     sender_id = db.Column(db.Integer,nullable=False)
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_pending = db.Column(db.Boolean, default=True, nullable=False)
+
+    def __repr__(self):
+        return f"Post('{self.title}', '{self.date_posted}')"
+
+class Complaint(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    content = db.Column(db.Text, nullable=False)
+    complainant_id = db.Column(db.Integer,nullable=False)
+    complainee_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     is_pending = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):

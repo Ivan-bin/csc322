@@ -5,7 +5,7 @@ from wtforms import StringField, PasswordField, SubmitField,TextAreaField, Boole
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
 from application.models import User
 
-interestList = [('1', 'a'), ('2', 'b'), ('3', 'c'), ('4', 'd'), ('5', 'e'), ('6', 'f')]
+interestList = [('1', 'Frontend developer'), ('2', 'Backend expert'), ('3', 'Database expert'), ('4', 'AI expert'), ('5', 'Manager'), ('6', 'Full-Stack developer')]
 
 class RegistrationForm(FlaskForm):
     name = StringField('Name',

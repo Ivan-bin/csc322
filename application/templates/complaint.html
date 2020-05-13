@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block content %}
+  <article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="#">{{ complaint.complainee.username + " - " + complaint.complainee.email }}</a>
+            <div>
+                <button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#ignoreModal">Ignore Complaint</button>
+                <button type="button" class="btn btn-warning btn-sm m-1" data-toggle="modal" data-target="#complaintModal">Reduce points</button>
+                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#blacklistModal">Blacklist User</button>
+            </div>
+        </div>
+        <p class="article-content">Title : {{ complaint.title }}</p>
+        <p class="article-content">Content :{{ complaint.content }}</p>
+        <p class="article-content">Complainant : {{ complainant.username}}</p>
+        <p class="article-content">Complainant email : {{ complainant.email}}</p>
+        <p class="article-content">Date :{{ complaint.date_posted }}</p>
+    </div>
+  </article>
+  <!-- Modal -->
+  <div class="modal fade" id="ignoreModal" tabindex="-1" role="dialog" aria-labelledby="ignoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ignoreModalLabel">Ignore Complaint?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('home', complaint_id=complaint.id) }}" method="GET">              <!-- need update url_for-->
+            <input class="btn btn-danger" type="submit" value="Ignore Complaint">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="blacklistModal" tabindex="-1" role="dialog" aria-labelledby="blacklistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="blacklistModalLabel">Blacklist User?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('home', complaint_id=complaint.id) }}" method="GET">              <!-- need update url_for-->
+            <input class="btn btn-danger" type="submit" value="Blacklist">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="complaintModal" tabindex="-1" role="dialog" aria-labelledby="complaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="complaintModalLabel">Reduce rating points?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('approve_complaint', complaint_id=complaint.id) }}" method="POST"> 
+            <input class="btn btn-warning" type="submit" value="Reduce points">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

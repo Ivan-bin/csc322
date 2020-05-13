@@ -4,7 +4,7 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
-from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment
+from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment, Complaint
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -233,30 +233,33 @@ def message():
 @app.route("/application_list")
 @login_required
 def applications():
-    applications = Application.query.filter_by(is_pending=True).all()
-    if applications:
-        return render_template('application_list.html', applications=applications)
-    else:
-        flash('No more applications.', 'info')
-        return render_template('application_list.html', applications=applications)
+    if current_user.is_su:
+        applications = Application.query.filter_by(is_pending=True).all()
+        if applications:
+            return render_template('application_list.html', applications=applications)
+        else:
+            flash('No more applications.', 'info')
+            return render_template('application_list.html', applications=applications)
 
 @app.route("/application_list/<int:application_id>")
 def application(application_id):
-    application = Application.query.get_or_404(application_id)
-    return render_template('application.html', title=application.email, application=application)
+    if current_user.is_su:
+        application = Application.query.get_or_404(application_id)
+        return render_template('application.html', title=application.email, application=application)
 
 @app.route("/application_list/<int:application_id>/approve", methods=['POST'])
 @login_required
 def approve_application(application_id):
-    application = Application.query.get_or_404(application_id)
-    user = User(username=application.email, email=application.email, password="$2b$12$xRMPe9Z7xLW6f83Ddv4pBeUCnnd8SV8IZvtmX7FwFHsbFd3fQf6Ke")
-    db.session.add(user)
-    application.is_pending = False
-    db.session.commit()
-    user2 = User.query.filter_by(email=user.email).first()
-    send_approvedApplication_email(user2)
-    flash('The application has been approved.','success')
-    return redirect(url_for('applications'))
+    if current_user.is_su:
+        application = Application.query.get_or_404(application_id)
+        user = User(username=application.email, email=application.email, password="$2b$12$xRMPe9Z7xLW6f83Ddv4pBeUCnnd8SV8IZvtmX7FwFHsbFd3fQf6Ke")
+        db.session.add(user)
+        application.is_pending = False
+        db.session.commit()
+        user2 = User.query.filter_by(email=user.email).first()
+        send_approvedApplication_email(user2)
+        flash('The application has been approved.','success')
+        return redirect(url_for('applications'))
 
 def send_approvedApplication_email(user):
     token = user.get_reset_token()
@@ -272,37 +275,83 @@ Welcome to Active Teaming System.
 @app.route("/compliment_list")
 @login_required
 def compliments():
-    compliments = Compliment.query.filter_by(is_pending=True).all()
-    if compliments:
-        return render_template('compliment_list.html', compliments=compliments)
-    else:
-        flash('No more compliments.', 'info')
-        return render_template('compliment_list.html', compliments=compliments)
+    if current_user.is_su:
+        compliments = Compliment.query.filter_by(is_pending=True).all()
+        if compliments:
+            return render_template('compliment_list.html', compliments=compliments)
+        else:
+            flash('No more compliments.', 'info')
+            return render_template('compliment_list.html', compliments=compliments)
 
 @app.route("/compliment_list/<int:compliment_id>")
 def compliment(compliment_id):
-    compliment = Compliment.query.get_or_404(compliment_id)
-    sender = User.query.filter_by(id=compliment.sender_id).first()
-    return render_template('compliment.html', title=compliment.recipient.email, compliment=compliment, sender=sender)
+    if current_user.is_su:
+        compliment = Compliment.query.get_or_404(compliment_id)
+        sender = User.query.filter_by(id=compliment.sender_id).first()
+        return render_template('compliment.html', title=compliment.recipient.email, compliment=compliment, sender=sender)
 
 @app.route("/compliment_list/<int:compliment_id>/approve", methods=['POST'])
 @login_required
 def approve_compliment(compliment_id):
-    user_compliment = Compliment.query.get_or_404(compliment_id)
-    user_compliment.is_pending = False
-    user_compliment.recipient.rating += 1
-    db.session.commit()
-    msg = Message('New Complement',
-                  sender='noreply@demo.com',
-                  recipients=[user_compliment.recipient.email])
-    msg.body = f'''Congratulations!
-{user_compliment.recipient.username}
-You have received a new complement.
-"""
-{user_compliment.content}
-"""
-Welcome to Active Teaming System.
-'''
-    mail.send(msg)
-    flash('Compliment has been sent.','success')
-    return redirect(url_for('compliments'))
+    if current_user.is_su:
+        user_compliment = Compliment.query.get_or_404(compliment_id)
+        user_compliment.is_pending = False
+        user_compliment.recipient.rating += 1
+        db.session.commit()
+        msg = Message('New Complement',
+                    sender='noreply@demo.com',
+                    recipients=[user_compliment.recipient.email])
+        msg.body = f'''Congratulations!
+    {user_compliment.recipient.username}
+    You have received a new compliment.
+    """
+    {user_compliment.content}
+    """
+    Your rating will increase 1 point.
+    Active Teaming System.
+    '''
+        mail.send(msg)
+        flash('Compliment has been sent.','success')
+        return redirect(url_for('compliments'))
+
+@app.route("/complaint_list")
+@login_required
+def complaints():
+    if current_user.is_su:
+        complaints = Complaint.query.filter_by(is_pending=True).all()
+        if complaints:
+            return render_template('complaint_list.html', complaints=complaints)
+        else:
+            flash('No more complaints.', 'info')
+            return render_template('complaint_list.html', complaints=complaints)
+
+@app.route("/complaint_list/<int:complaint_id>")
+def complaint(complaint_id):
+    if current_user.is_su:
+        complaint = Complaint.query.get_or_404(complaint_id)
+        complainant = User.query.filter_by(id=complaint.complainant_id).first()
+        return render_template('complaint.html', title=complaint.complainee.email, complaint=complaint, complainant=complainant)
+
+@app.route("/complaint_list/<int:complaint_id>/approve", methods=['POST'])
+@login_required
+def approve_complaint(complaint_id):
+    if current_user.is_su:
+        user_complaint = Complaint.query.get_or_404(complaint_id)
+        user_complaint.is_pending = False
+        user_complaint.complainee.rating -= 1
+        db.session.commit()
+        msg = Message('New Complaint',
+                    sender='noreply@demo.com',
+                    recipients=[user_complaint.complainee.email])
+        msg.body = f'''Warning!
+    {user_complaint.complainee.username}
+    You have received a new complaint:
+    """
+    {user_complaint.content}
+    """
+    Your rating will decrease 1 point.
+    Active Teaming System.
+    '''
+        mail.send(msg)
+        flash('Complaint has been sent.','success')
+        return redirect(url_for('complaints'))
