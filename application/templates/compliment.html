@@ -28,7 +28,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('home', compliment_id=compliment.id) }}" method="GET">              <!-- need update url_for-->
+          <form action="{{ url_for('reject_compliment', compliment_id=compliment.id) }}" method="POST">   
             <input class="btn btn-danger" type="submit" value="Reject">
           </form>
         </div>
