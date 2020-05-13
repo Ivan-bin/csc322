@@ -1,6 +1,8 @@
 {%extends "layout.html"%}
 {%block content%}
 <div class="content">
+{%for user in users%}
+{%if current_user.id == user.id%}
 <div class="sidenav">
   <a href="{{ url_for('invite',group_title=group.title) }}">Invite</a><br>
   <a href="{{ url_for('new_post',group_title=group.title) }}">New Post</a><br>
@@ -9,6 +11,8 @@
   <a href="{{ url_for('kick',group_title=group.title) }}">Kick A Member</a><br>
   <a href="{{ url_for('close',group_title=group.title) }}">Close Group</a><br>
 </div>
+{%endif%}
+{%endfor%}
 {%if meeting%}
 <form method="POST" action="">
   {{meetingform.hidden_tag() }}
