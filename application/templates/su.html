@@ -1,12 +1,13 @@
 {%extends "layout.html"%}
 {%block content%}
+<h1 class="display-3" >Super User Window</h1>
 <form class="needs-validation" novalidate>
     <div class="form-row">
         <div class="col-md-4 mb-3">
             <button type="button" class="btn btn-primary btn-block" onclick="window.location.href='{{ url_for('applications') }}';">Applications</button>
         </div>
         <div class="col-md-4 mb-3">
-            <button type="button" class="btn btn-primary btn-block">Large button</button>
+            <button type="button" class="btn btn-primary btn-block" onclick="window.location.href='{{ url_for('compliments') }}';">Compliments</button>
         </div>
         <div class="col-md-4 mb-3">
             <button type="button" class="btn btn-primary btn-block">Large button</button>
