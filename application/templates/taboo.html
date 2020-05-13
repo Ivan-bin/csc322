@@ -1,0 +1,35 @@
+{%extends "layout.html"%}
+{%block content%}
+
+<div class="content">
+    <h1 style="text-align: center">Taboo Word List</h1>
+    <div class="form">
+        <form action="/taboo" method="POST">
+            <input type="text" name="content" id="content">
+            <input type="submit" value="Add Word">
+        </form>
+    </div>
+    {% if words|length < 1 %}
+    <h4 style="text-align: center">There are no words.</h4>
+    {% else %}
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Word</th>
+            <th scope="col">Remove</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for word in words %}
+            <tr>
+                <td>{{ word.id }}</td>
+                <td>{{ word.word }}</td>
+                <td><a href="{{ url_for('deleteword',id=word.id) }}">Delete</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+</div>
+{%endblock%} 

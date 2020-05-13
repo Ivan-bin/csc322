@@ -4,7 +4,7 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
-from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment, Complaint, UserBlacklist
+from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment, Complaint, UserBlacklist, Taboo
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -390,5 +390,34 @@ def remove_blacklisted_user(id):
             db.session.commit()
             flash('Remove','success')
             return redirect(url_for('user_blacklist'))
+        except:
+            return 'There was a problem deleting that task'
+
+@app.route('/taboo', methods=['POST', 'GET'])
+@login_required
+def taboo():
+    if current_user.is_su:
+        if request.method == 'POST':
+            word_content = request.form['content']
+            new_word = Taboo(word=word_content)
+            try:
+                db.session.add(new_word)
+                db.session.commit()
+                return redirect('taboo')
+            except:
+                return 'There was an issue adding your word'
+        else:
+            words = Taboo.query.order_by(Taboo.id).all()
+            return render_template('taboo.html', words=words)
+
+@app.route('/deleteword/<int:id>',methods=['POST', 'GET'])
+def deleteword(id):
+    if current_user.is_su:
+        word_to_delete = Taboo.query.get_or_404(id)
+        try:
+            db.session.delete(word_to_delete)
+            db.session.commit()
+            flash('Remove','success')
+            return redirect(url_for('taboo'))
         except:
             return 'There was a problem deleting that task'
