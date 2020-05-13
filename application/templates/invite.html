@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{ legend }} User to {{group.title}}</legend>
+            <div class="form-group" id="member">
+                <label for="member">Select Member</label>
+                <div class="form-check">
+                    {%for user in users%}
+                        <input class="form-check-input" type="checkbox" value={{user.id}} id={{user.id}}  name="members">
+                        <label class="form-check-label" for={{user.id}} >
+                        {{user.username}}
+                        </label><br>
+                    {%endfor%}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.reason.label(class="form-control-label") }}
+                {% if form.reason.errors %}
+                    {{ form.reason(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.reason.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.reason(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}

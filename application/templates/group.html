@@ -1,0 +1,10 @@
+{%extends "layout.html"%}
+{%block content%}
+{% if groups|length < 1 %}
+<h4 style="text-align: center">There are no groups.</h4>
+{% else %}
+    {%for group in groups %}
+        <a href="{{ url_for('grouppage',group_title=group.project)}}">{{group.project}}</a><br>
+    {%endfor%}
+{%endif%}
+{%endblock%} 

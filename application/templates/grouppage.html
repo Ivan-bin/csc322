@@ -1,0 +1,94 @@
+{%extends "layout.html"%}
+{%block content%}
+<div class="content">
+<div class="sidenav">
+  <a href="{{ url_for('invite',group_title=group.title) }}">Invite</a><br>
+  <a href="{{ url_for('new_post',group_title=group.title) }}">New Post</a><br>
+  <a href="{{ url_for('meeting',group_title=group.title) }}">Scheudel Meeting</a><br>
+  <a href="{{ url_for('praise_warning',group_title=group.title) }}">Praise/Warning</a><br>
+  <a href="{{ url_for('kick',group_title=group.title) }}">Kick A Member</a><br>
+  <a href="{{ url_for('close',group_title=group.title) }}">Close Group</a><br>
+</div>
+{%if meeting%}
+<form method="POST" action="">
+  {{meetingform.hidden_tag() }}
+  <div class="sidedisplay">
+    <h6 style="text-align: center">{{meeting.sender}} Started a Poll for Meeting</h6>
+    <p style="text-align: center">Pick a Time {{meetingform.time}}</p>
+    <div style="text-align: center">{{ meetingform.submit(class="btn") }}</div>
+</div>
+</form>
+{%endif%}
+{%if close%}
+<form method="POST" action="">
+  {{closeform.hidden_tag() }}
+  <div class="sidedisplayd">
+    <h6 style="text-align: center">{{close.sender}} Started a Poll for Closing Group</h6>
+    <p style="text-align: center">Select: {{closeform.close}}</p>
+    <div style="text-align: center">{{ closeform.submit(class="btn") }}</div>
+</div>
+</form>
+{%endif%}
+{%if praisewarn%}
+<form method="POST" action="">
+  {{pwform.hidden_tag() }}
+  <div class="sidedisplayb">
+    <h6 style="text-align: center"> {{praisewarn.sender}} Started a Poll to {{praisewarn._type}} {{praisewarn.to_user}} </h6>
+    <p style="text-align: left">Reason: {{praisewarn.reason}} </p>
+    <p style="text-align: center">Select: {{pwform.pw}}</p>
+    <div style="text-align: center">{{ pwform.submit(class="btn") }}</div>
+  </div>
+</form>
+{%endif%}
+{%if kick%}
+<form method="POST" action="">
+  {{kickform.hidden_tag() }}
+  <div class="sidedisplayc">
+    <h6 style="text-align: center"></h6>
+    <p style="text-align: center">Select: {{kickform.kick}}</p>
+    <div style="text-align: center">{{ kickform.submit(class="btn") }}</div>
+</div>
+</form>
+{%endif%}
+<h5 style="text-align: center">Web Page for {{group.title}}</h5><br>
+<p style="text-align: right">Created on {{group.date_created.strftime("%x")}}</p><br>
+<table class="table">
+    <h4>Member(s)</h4>
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">User</th>
+        <th scope="col">Email</th>
+        <th scope="col">Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.rating }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <br>
+  <br>
+  <h4>Group Description</h4>
+  <p>{{group.description}}</p>
+  <br>
+  <br>
+  <h4>Group Posts</h4>
+  {% for post in posts %}
+      <div class="media-body">
+          <div class="article-metadata">
+              <small class="text-muted">{{post.date_posted.strftime('%I:%M:%S%p')}} {{ post.date_posted.strftime('%x')}} by {{post.author}}</small>
+          </div>
+          <p style="text-align: center">{{ post.title }}</p>
+          <p class="article-content">{{ post.content }}</p>
+      </div>
+      <br>
+    {% endfor %}
+  </div>
+{%endblock%} 

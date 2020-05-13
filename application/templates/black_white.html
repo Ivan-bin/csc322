@@ -1,0 +1,44 @@
+{%extends "layout.html"%}
+{%block content%}
+<h5 style="text-align: left">White</h5>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">User</th>
+        <th scope="col">Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for white in whitelist %}
+        <tr>
+            <td>{{ white.white }}</td>
+            <td>
+                <a href="{{ url_for('delete_white',list_id=white.id) }}">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <br>
+  <br>
+  <br>
+  <h5 style="text-align: left">Blocked</h5>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">User</th>
+        <th scope="col">Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for black in blacklist %}
+        <tr>
+            <td>{{ black.black }}</td>
+            <td>
+                <a href="{{ url_for('delete_black',list_id=black.id) }}">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{%endblock%} 

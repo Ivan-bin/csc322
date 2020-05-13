@@ -1,24 +1,38 @@
 import os
 import secrets
 from PIL import Image
+import datetime
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
-from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
-from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment, Complaint, UserBlacklist, Taboo
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, FormGroupForm,PraiseWarningForm,CloseForm,CloseAnswerForm\
+    ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1
+from application.models import User, Post, Project, Message1, ProjectMember, Praisewarn,Kick,KickResult ,Close,CloseResult,\
+    Whitelist, Blacklist,Application,ApplicationBlacklist, Meeting,MeetingResult, Taboo,PraisewarnResult, WarningList, UserBlacklist,Complaint,Compliment
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
+
+choices= ['08:00AM to 09:00AM','09:00AM to 10:00AM','10:00AM to 11:00AM','11:00AM to 12:00PM','12:00AM to 01:00PM',
+    '01:00PM to 02:00PM','02:00PM to 03:00PM','03:00PM to 04:00PM','04:00PM to 05:00PM','05:00PM to 06:00PM'
+    ,'06:00PM to 07:00PM','07:00PM to 08:00PM']
 
 @app.route("/")
 @app.route("/home")
 def home():
-    users = User.query.order_by(User.rating.desc()).limit(3).all()
+    if User.query.filter(User.email=='superuser@csc322.edu').first():
+        pass
+    else:
+        hashed_password = bcrypt.generate_password_hash('super').decode('utf-8')
+        user = User(username='superuser',email='superuser@csc322.edu',password=hashed_password,is_su=True)
+        db.session.add(user)
+        db.session.commit()
+    users = User.query.filter(User.email!='superuser@csc322.edu').order_by(User.rating.desc()).limit(3).all()
     projects = Project.query.order_by(Project.rating.desc()).limit(3).all()
     return render_template('home.html', users=users,projects=projects)
 
 @app.route("/projects_and_users")
 def projects_and_users():
     page = request.args.get('page',1,type=int)
-    users = User.query.order_by(User.id.asc()).paginate(page=page, per_page=5)
+    users = User.query.filter(User.email!='superuser@csc322.edu').order_by(User.id.asc()).paginate(page=page, per_page=5)
     projects = Project.query.order_by(Project.id.asc()).paginate(page=page, per_page=5)
     return render_template('projects_and_users.html', users=users,projects=projects)
 
@@ -53,6 +67,19 @@ def register():
         flash('Your application has been sent.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+@app.route("/register1", methods=['GET', 'POST'])
+def register1():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RegistrationForm1()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template('register1.html', title='Register', form=form)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -111,60 +138,21 @@ def account():
     return render_template('account.html', title='Account',
                            image_file=image_file, form=form)
 
-@app.route("/post/new", methods=['GET', 'POST'])
+@app.route("/post/<string:group_title>/new", methods=['GET', 'POST'])
 @login_required
-def new_post():
+def new_post(group_title):
     form = PostForm()
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    print('fdfsdds')
     if form.validate_on_submit():
-        post = Post(title=form.title.data,content=form.content.data,author=current_user)
+        print('12312')
+        message = checkMessage(form.content.data.split())
+        post = Post(content=message,group_id=group.id,author=current_user.username,date_posted=datetime.datetime.now())
         db.session.add(post)
         db.session.commit()
-        flash('your post had been created','success')
-        return redirect(url_for('home'))
-    return render_template('create_post.html', title='New Post', form =form,legend ='new post')
-
-@app.route("/post/<int:post_id>")
-def post(post_id):
-    post = Post.query.get_or_404(post_id)
-    return render_template('post.html',title=post.title,post=post)
-
-@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
-@login_required
-def update_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    form = PostForm()
-    if form.validate_on_submit():
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.commit()
-        flash('your post have been update','success')
-        return redirect(url_for('post',post_id=post.id))
-    elif request.method == 'GET':
-        form.title.data = post.title
-        form.content.data = post.content
-    return render_template('create_post.html', title='Update Post', form =form, legend ='update post')
-
-@app.route("/post/<int:post_id>/delete", methods=['POST'])
-@login_required
-def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    db.session.delete(post)
-    db.session.commit()
-    flash('your post have been delete','success')
-    return redirect(url_for('home'))
-
-@app.route("/user/<string:username>")
-def user_posts(username):
-    page = request.args.get('page', 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
-    posts = Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
-        .paginate(page=page, per_page=5)
-    return render_template('user_posts.html', posts=posts, user=user)
+        flash('Your post has been posted','success')
+        return redirect(url_for('grouppage',group_title=group.title))
+    return render_template('create_post.html', title='New Post', form =form,legend ='New Post',group=group)
 
 
 def send_reset_email(user):
@@ -183,52 +171,60 @@ If you did not make this request then simply ignore this email and no changes wi
 def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-    form = RequestResetForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        send_reset_email(user)
-        flash('An email has been sent with instructions to reset your password.', 'info')
-        return redirect(url_for('login'))
-    return render_template('reset_request.html', title='Reset Password', form=form)
-
-@app.route("/reset_password/<token>", methods=['GET', 'POST'])
-def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    user = User.verify_reset_token(token)
-    if user is None:
-        flash('That is an invalid or expired token', 'warning')
-        return redirect(url_for('reset_request'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_password
         db.session.commit()
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('reset_token.html', title='Reset Password', form=form)
+    return render_template('reset_request.html', title='Reset Password', form=form)
 
 @app.route("/form_group", methods=['GET', 'POST'])
 @login_required
 def form_group():
     users = User.query.filter(User.id!=current_user.id).all()
+    superuser = User.query.filter_by(email='superuser@csc322.edu').first()
+    users.remove(superuser)
     form = FormGroupForm()
     if form.validate_on_submit():
-        print(request.form.getlist('members'))
         members = request.form.getlist('members')
         if members == []:
             flash('Must select at least one member','danger')
             return redirect(url_for('form_group'))
-        flash('Invite(s) has been sent','success')
+        message = checkMessage(form.content.data.split())
+        project = Project(title=form.title.data,description=message)
+        db.session.add(project)
+        db.session.commit()
+        for member in members:
+            b_user = User.query.filter_by(id=member).first()
+            in_blacklist =Blacklist.query.filter((Blacklist.user==b_user.username) & (Blacklist.black==current_user.username)).first()
+            in_whitelist =Whitelist.query.filter((Whitelist.user==b_user.username) & (Whitelist.white==current_user.username)).first()
+            if in_blacklist is None:
+                if in_whitelist is not None:
+                    projmember = ProjectMember(project=form.title.data,member=member)
+                    db.session.add(projmember)
+                    db.session.commit()
+                    flash('you are in '+b_user.username +'\'s white list','success')
+                else:
+                    message = Message1(title=form.title.data,content=checkMessage(form.content.data.split()),from_user=current_user.username,to_user=member,mess_type='invite')
+                    db.session.add(message)
+                    db.session.commit()
+                    flash('Invite has been sent to ' +b_user.username,'success')
+            else:
+                flash('you got blocked by '+b_user.username,'warning')
+        projmember2 = ProjectMember(project=form.title.data,member=current_user.id)
+        db.session.add(projmember2)
+        db.session.commit()
         return redirect(url_for('home'))
     return render_template('form_group.html',form =form,users=users)
 
 @app.route("/message", methods=['GET', 'POST'])
 @login_required
 def message():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('message.html', posts=posts)
+    message = Message1.query.filter(Message1.to_user == current_user.id).paginate(per_page=1)
+    return render_template('message.html', posts=message)
 
 @app.route("/application_list")
 @login_required
@@ -421,3 +417,484 @@ def deleteword(id):
             return redirect(url_for('taboo'))
         except:
             return 'There was a problem deleting that task'
+
+@app.route("/message/<int:message_id>/accept", methods=['POST'])
+@login_required
+def accept_message(message_id):
+    message = Message1.query.get_or_404(message_id)
+    project = message.title
+    user = message.to_user
+    member = ProjectMember(project=project,member=user)
+    db.session.add(member)
+    db.session.commit()
+    db.session.delete(message)
+    db.session.commit()
+    if request.form.get('whitelist') is not None:
+        b_user = User.query.filter_by(id=message.from_user).first()
+        white = Whitelist(user=current_user.username,white=message.from_user)
+        db.session.add(white)
+        db.session.commit()
+    flash('You have successfully accepted the invite, the group link is under Account - Groups','success')
+    return redirect(url_for('message'))
+
+@app.route("/message/<int:message_id>/decline", methods=['POST'])
+@login_required
+def decline_message(message_id):
+    message = Message1.query.get_or_404(message_id)
+    db.session.delete(message)
+    db.session.commit()
+    if request.form.get('blacklist') is not None:
+        black = Blacklist(user=current_user.username,black=message.from_user)
+        db.session.add(black)
+        db.session.commit()
+    flash('you have successfully decline the invite','success')
+    return redirect(url_for('message'))
+
+@app.route("/delete/<int:message_id>", methods=['POST','GET'])
+@login_required
+def remove_message(message_id):
+    message = Message1.query.get_or_404(message_id)
+    db.session.delete(message)
+    db.session.commit()
+    flash('you have successfully remove the message','success')
+    return redirect(url_for('message'))
+
+@app.route("/blackwhite-list", methods=['GET', 'POST'])
+@login_required
+def black_white():
+    white = Whitelist.query.filter(Whitelist.user==current_user.username).all()
+    black = Blacklist.query.filter(Blacklist.user==current_user.username).all()
+    return render_template('black_white.html',whitelist=white,blacklist=black)
+
+@app.route("/white_delete/<int:list_id>", methods=['GET', 'POST'])
+@login_required
+def delete_white(list_id):
+    delete = Whitelist.query.get_or_404(list_id)
+    try:
+        db.session.delete(delete)
+        db.session.commit()
+        flash('User had been remove','success')
+        return redirect(url_for('black_white'))
+    except:
+        flash('There was a problem deleting that task','warning')
+        return redirect(url_for('black_white'))
+
+@app.route("/black_delete/<int:list_id>", methods=['GET', 'POST'])
+@login_required
+def delete_black(list_id):
+    delete = Blacklist.query.get_or_404(list_id)
+    try:
+        db.session.delete(delete)
+        db.session.commit()
+        flash('User had been remove','success')
+        return redirect(url_for('black_white'))
+    except:
+        flash('There was a problem deleting that task','warning')
+        return redirect(url_for('black_white'))
+        
+@app.route("/grouppage/<string:group_title>", methods=['GET', 'POST'])
+def grouppage(group_title):
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    warninglist = WarningList.query.filter((WarningList.group==group.title) & (WarningList.user==current_user.username)).all()
+    if len(warninglist)>=3:
+        kick_user = User.query.filter(User.id==current_user.id).first()
+        kick_user.rating-=10
+        db.session.add(kick_user)
+        db.session.commit()
+        kick = ProjectMember.query.filter((ProjectMember.project==group.title)&(ProjectMember.member==current_user.id)).first()
+        db.session.delete(kick)
+        db.session.commit()
+        flash('Sorry you got kick from the group','danger')
+        return redirect(url_for('group'))
+    getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
+    meeting = Meeting.query.filter_by(group=group.title).first()
+    kick = Kick.query.filter_by(group=group.title).first()
+    praisewarn = Praisewarn.query.filter_by(group=group.title).first()
+    close = Close.query.filter_by(group=group.title).first()
+    users = []
+    for uid in getid:
+        users += User.query.filter(User.id == uid.member).all()
+    result = []
+    if meeting is None:
+        pass
+    else:
+        meet = MeetingResult.query.filter_by(meeting_id=meeting.id).all()
+        time = datetime.datetime.now()- meeting.date_posted
+        for m in meet:
+            if current_user.username == m.user:
+                meeting = []
+                break
+        if time.seconds >= 300 or len(meet)==len(users):
+            meeting1 = Meeting.query.filter_by(group=group.title).first()
+            db.session.delete(meeting1)
+            db.session.commit()
+            for m in meet:
+                result.append(m.result)
+                db.session.delete(m)
+                db.session.commit()
+            for user in users:
+                title = "Meeting Poll Result for Group "+ group.title
+                content = choices[max(set(result), key = result.count)-1]
+                from_user = meeting1.sender
+                to_user = user.id
+                mess = Message1(title=title,content=content,from_user=from_user,to_user=to_user,mess_type="meeting")
+                db.session.add(mess)
+                db.session.commit()
+    if praisewarn is None:
+        pass
+    else:
+        res=[]
+        praisewarn1 = Praisewarn.query.filter_by(group=group.title).first()
+        pwresult = PraisewarnResult.query.filter_by(praisewarn_id=praisewarn1.id).all()
+        time = datetime.datetime.now()- praisewarn.date_posted
+        for result in pwresult:
+            if (current_user.username == praisewarn1.to_user):
+                praisewarn = []
+                break
+            if (current_user.username == result.user):
+                praisewarn = []
+                break
+        if time.seconds >= 300 or len(pwresult)==(len(users)-1):
+            for r in pwresult:
+                res.append(r.result)
+                db.session.delete(r)
+                db.session.commit()
+            ans = max(set(res), key = res.count)
+            for user in users:
+                if user.username != praisewarn1.to_user:
+                    title = "Praise/Warning Poll Result for Group "+ group.title
+                    if ans == 0:
+                        content = 'Fail to ' + praisewarn1._type + praisewarn1.to_user
+                    else:
+                        content = 'Success! ' + praisewarn1._type +' to '+ praisewarn1.to_user
+                    from_user = praisewarn1.sender
+                    to_user = user.id
+                    mess = Message1(title=title,content=content,from_user=from_user,to_user=to_user,mess_type="meeting")
+                    db.session.add(mess)
+                    db.session.commit()
+                else:
+                    if ans == 0:
+                        pass
+                    else:
+                        content = 'Group member(s) sent a ' + praisewarn1._type + ' to you'
+                        title = "You Recieved a "+ praisewarn1._type +" from " +group.title
+                        from_user = praisewarn1.sender
+                        to_user = user.id
+                        mess = Message1(title=title,content=content,from_user=from_user,to_user=to_user,mess_type="meeting")
+                        db.session.add(mess)
+                        db.session.commit()
+                        warn = WarningList(user=praisewarn1.to_user,group=group.title)
+                        db.session.add(warn)
+                        db.session.commit()
+            db.session.delete(praisewarn1)
+            db.session.commit()
+    if kick is None:
+        pass
+    else:
+        res=[]
+        kick1 = Kick.query.filter_by(group=group.title).first()
+        kick_result = KickResult.query.filter_by(kick_id=kick1.id).all()
+        time = datetime.datetime.now()- kick1.date_posted
+        for result in kick_result:
+            if (current_user.username == kick1.to_user):
+                kick = []
+                break
+            if (current_user.username == result.user):
+                kick = []
+                break
+        if time.seconds >= 300 or len(kick_result)==(len(users)-1):
+            for r in kick_result:
+                res.append(r.result)
+                db.session.delete(r)
+                db.session.commit()
+            ans = max(set(res), key = res.count)
+            for user in users:
+                if user.username != kick1.to_user:
+                    title = "Kicking Poll Result for Group "+ group.title
+                    if ans == 0:
+                        content = 'Fail to kick' + kick1.to_user
+                    else:
+                        content = 'Successfully kicked '+ kick1.to_user
+                    from_user = kick1.sender
+                    to_user = user.id
+                    mess = Message1(title=title,content=content,from_user=from_user,to_user=to_user,mess_type="meeting")
+                    db.session.add(mess)
+                    db.session.commit()
+                else:
+                    if ans == 0:
+                        pass
+                    else:
+                        content = 'Reason: ' + kick1.reason
+                        title = 'You got kick from group ' + group.title
+                        from_user = kick1.sender
+                        to_user = user.id
+                        mess = Message1(title=title,content=content,from_user=from_user,to_user=to_user,mess_type="meeting")
+                        db.session.add(mess)
+                        db.session.commit()
+                        user = ProjectMember.query.filter((ProjectMember.member==user.id)&(ProjectMember.project==group.title)).first()
+                        db.session.delete(user)
+                        db.session.commit()
+            db.session.delete(kick1)
+            db.session.commit()
+    if close is None:
+        pass
+    else:
+        res=[]
+        close1 = Close.query.filter_by(group=group.title).first()
+        close_result = CloseResult.query.filter_by(close_id=close1.id).all()
+        time = datetime.datetime.now()- close1.date_posted
+        for result in close_result:
+            if (current_user.username == result.user):
+                close = []
+                break
+        if time.seconds >= 300 or len(close_result)==(len(users)):
+            for r in close_result:
+                res.append(r.result)
+                db.session.delete(r)
+                db.session.commit()
+            ans = max(set(res), key = res.count)
+            for user in users:
+                    title = "Close Group Poll Result for "+ group.title
+                    if ans == 0:
+                        content = 'Fail' 
+                    else:
+                        content = 'Success'
+                        close_g = ProjectMember.query.filter_by(member=user.id).first()
+                        db.session.delete(close_g)
+                        db.session.commit()
+                    from_user = close1.sender
+                    to_user = user.id
+                    mess = Message1(title=title,content=content,from_user=from_user,to_user=to_user,mess_type="meeting")
+                    db.session.add(mess)
+                    db.session.commit()
+            if ans == 1:
+                grp = Project.query.filter(Project.title==group.title).first()
+                db.session.delete(grp)
+                db.session.commit()
+            db.session.delete(close1)
+            db.session.commit()
+    meetingform = MeetingForm()
+    if meetingform.validate_on_submit():
+        meet = Meeting.query.filter_by(group=group.title).first()
+        meetingresult = MeetingResult(user=current_user.username,result=meetingform.time.data,meeting_id=meet.id)
+        db.session.add(meetingresult)
+        db.session.commit()
+        flash('Submitted1, result will send to your message box','success')
+        return redirect(url_for('grouppage',group_title=group_title))
+    pwform = PWAnswerForm()
+    if pwform.validate_on_submit():
+        praisewarn1 = Praisewarn.query.filter_by(group=group.title).first()
+        praisewarningresult = PraisewarnResult(user=current_user.username,result=pwform.pw.data,praisewarn_id=praisewarn1.id)
+        db.session.add(praisewarningresult)
+        db.session.commit()
+        flash('Submitted, result will send to your message box','success')
+        return redirect(url_for('grouppage',group_title=group_title))
+    kickform = KickAnswerForm()
+    if kickform.validate_on_submit():
+        kick = Kick.query.filter_by(group=group.title).first()
+        kickresult = KickResult(user=current_user.username,result=kickform.kick.data,kick_id=kick.id)
+        db.session.add(kickresult)
+        db.session.commit()
+        flash('Submitted, result will send to your message box','success')
+        return redirect(url_for('grouppage',group_title=group_title))
+    closeform = CloseAnswerForm()
+    if closeform.validate_on_submit():
+        close = Close.query.filter_by(group=group.title).first()
+        closeresult = CloseResult(user=current_user.username,result=closeform.close.data,close_id=close.id)
+        db.session.add(closeresult)
+        db.session.commit()
+        flash('Submitted, result will send to your message box','success')
+        return redirect(url_for('grouppage',group_title=group_title))
+    posts = Post.query.filter(Post.group_id==group.id).order_by(Post.date_posted.desc()).all()
+    return render_template('grouppage.html',group=group,users=users,posts=posts,meetingform=meetingform,\
+        kickform=kickform,meeting=meeting,praisewarn=praisewarn,kick=kick,pwform=pwform,closeform=closeform,close=close)
+
+@app.route("/group", methods=['GET', 'POST'])
+def group():
+    groups = ProjectMember.query.filter(ProjectMember.member==current_user.id).all()
+    return render_template('group.html', groups=groups)
+
+@app.route("/praisewarning/<string:group_title>/", methods=['GET', 'POST'])
+@login_required
+def praise_warning(group_title):
+    form = PraiseWarningForm()
+    members = request.form.getlist('members')
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
+    users = []
+    for uid in getid:
+        if uid.member != current_user.id:
+            users += User.query.filter(User.id == uid.member).all()
+    if form.validate_on_submit():
+        praisewarn = Praisewarn.query.filter(Praisewarn.group==group.title).first()
+        if praisewarn is None:
+            if members == [] or len(members)>1:
+                flash('Select at most/least one member','danger')
+                return redirect(url_for('praise_warning',group_title=group.title))
+            if form.porw.data == '1':
+                porw = 'praise'
+            else:
+                porw='warn'
+            b_user = User.query.filter_by(id=members[0]).first()
+            praiseorwarn = Praisewarn(sender=current_user.username,to_user=b_user.username,group=group.title,\
+                    date_posted=datetime.datetime.now(),_type=porw,reason=form.reason.data)
+            db.session.add(praiseorwarn)
+            db.session.commit()
+            praisewarn = Praisewarn.query.filter(Praisewarn.group==group.title).first()
+            result = PraisewarnResult(user=current_user.username,result=1,praisewarn_id=praisewarn.id)
+            db.session.add(result)
+            db.session.commit()
+            flash('Sent','success')
+        else:
+            time = datetime.datetime.now() - praisewarn.date_posted
+            flash('One Praise/Warning Poll at a time new meeting poll available in '+ str(datetime.timedelta(seconds=300-time.seconds)),'warning')
+        return redirect(url_for('grouppage',group_title=group.title))
+    return render_template('praisewarning.html', title='PraiseWaring', form =form,legend ='Praise or Warn',group=group,users=users)
+
+@app.route("/meeting/<string:group_title>/", methods=['GET', 'POST'])
+@login_required
+def meeting(group_title):
+    form = MeetingForm()
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
+    if form.validate_on_submit():
+        meet = Meeting.query.filter_by(group=group.title).first()
+        if meet is None:
+            meeting = Meeting(sender=current_user.username,date_posted=datetime.datetime.now(),group=group.title)
+            db.session.add(meeting)
+            db.session.commit()
+            meet1 = Meeting.query.filter_by(sender=current_user.username).first()
+            meetingresult = MeetingResult(user=current_user.username,result=form.time.data, meeting_id=meet1.id)
+            db.session.add(meetingresult)
+            db.session.commit()
+            flash('Submitted, result will send to your message box','success')
+        else:
+            time = datetime.datetime.now() - meet.date_posted
+            flash('One Meeting Poll at a time new meeting poll available in '+ str(datetime.timedelta(seconds=300-time.seconds)),'warning')
+        return redirect(url_for('grouppage',group_title=group_title))
+    return render_template('meeting.html', title='ScheduleMeeting', form =form,legend ='Schedule Meeting',group=group)
+
+@app.route("/kick/<string:group_title>/", methods=['GET', 'POST'])
+@login_required
+def kick(group_title):
+    form = KickForm()
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
+    members = request.form.getlist('members')
+    users = []
+    for uid in getid:
+        if uid.member != current_user.id:
+            users += User.query.filter(User.id == uid.member).all()
+    if form.validate_on_submit():
+        kick = Kick.query.filter(Kick.group==group.title).first()
+        if kick is None:
+            if members == [] or len(members)>1:
+                flash('Select at most/least one member','danger')
+                return redirect(url_for('praise_warning',group_title=group.title))
+            b_user = User.query.filter_by(id=members[0]).first()
+            kick_member = Kick(sender=current_user.username,to_user=b_user.username,group=group.title,\
+                    date_posted=datetime.datetime.now(),reason=form.reason.data)
+            db.session.add(kick_member)
+            db.session.commit()
+            kick = Kick.query.filter(Kick.group==group.title).first()
+            result = KickResult(user=current_user.username,result=1,kick_id=kick.id)
+            db.session.add(result)
+            db.session.commit()
+            flash('Sent','success')
+            return redirect(url_for('grouppage',group_title=group_title))
+        else:
+            time = datetime.datetime.now() - kick.date_posted
+            flash('One Praise/Warning Poll at a time new meeting poll available in '+ str(datetime.timedelta(seconds=300-time.seconds)),'warning')
+    return render_template('kick.html', title='Kick', form =form,legend ='Kick',group=group,users=users)
+
+@app.route("/close/<string:group_title>/", methods=['GET', 'POST'])
+@login_required
+def close(group_title):
+    form = CloseForm()
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
+    users = []
+    if form.validate_on_submit():
+        close = Close.query.filter(Kick.group==group.title).first()
+        if close is None:
+            close_group = Close(sender=current_user.username,group=group.title,\
+                    date_posted=datetime.datetime.now(),reason=form.reason.data)
+            db.session.add(close_group)
+            db.session.commit()
+            close = Close.query.filter(Close.group==group.title).first()
+            result = CloseResult(user=current_user.username,result=1,close_id=close.id)
+            db.session.add(result)
+            db.session.commit()
+            flash('Sent','success')
+            return redirect(url_for('grouppage',group_title=group_title))
+        else:
+            time = datetime.datetime.now() - close.date_posted
+            flash('One Praise/Warning Poll at a time new meeting poll available in '+ str(datetime.timedelta(seconds=300-time.seconds)),'warning')
+    return render_template('close.html', title='Close', form =form,legend ='Close Group',group=group)
+
+@app.route("/invite/<string:group_title>/", methods=['GET', 'POST'])
+@login_required
+def invite(group_title):
+    form = InviteForm()
+    group = Project.query.filter(Project.title==group_title).first_or_404()
+    getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
+    user = User.query.filter(User.email!='superuser@csc322.edu').all()
+    users = []
+    count = 1
+    for u in user:
+        for uid in getid:
+            if u.id == uid.member:
+                count = 1
+                break
+            if count == len(getid):
+                users += User.query.filter(User.id == u.id).all()
+                count = 1
+            count+=1
+    if form.validate_on_submit():
+        members = request.form.getlist('members')
+        if members == []:
+            flash('Must select at least one member','danger')
+            return redirect(url_for('invite',group_title=group.title))
+        for member in members:
+            b_user = User.query.filter_by(id=member).first()
+            in_blacklist =Blacklist.query.filter((Blacklist.user==b_user.username) & (Blacklist.black==current_user.username)).first()
+            in_whitelist =Whitelist.query.filter((Whitelist.user==b_user.username) & (Whitelist.white==current_user.username)).first()
+            if in_blacklist is None:
+                if in_whitelist is not None:
+                    projmember = ProjectMember(project=form.title.data,member=member)
+                    db.session.add(projmember)
+                    db.session.commit()
+                    flash('you are in '+b_user.username +'\'s white list','success')
+                else:
+                    message = Message1(title=group.title,content=form.reason.data,from_user=current_user.username,to_user=member,mess_type="invite")
+                    db.session.add(message)
+                    db.session.commit()
+                    flash('Invite has been sent to ' +b_user.username,'success')
+            else:
+                flash('you got blocked by '+b_user.username,'warning')
+        return redirect(url_for('grouppage',group_title=group_title))
+    return render_template('invite.html', title='Invite', form =form,legend ='Invite',group=group,users=users)
+
+def checkMessage(message):
+    mess = ''
+    taboo = Taboo.query.all()
+    count = 1
+    for m in message:
+        if taboo == []:
+            mess+=m
+            mess+=' '
+        else:
+            for t in taboo:
+                if t.word == m:
+                    mess+=m.replace(m,'*'*len(m))
+                    mess+=' '
+                    count = 1
+                    break
+                else:
+                    if count == len(taboo):
+                        mess+=m
+                        mess+=' '
+                    count+=1
+            count = 1
+
+    return mess

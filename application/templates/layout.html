@@ -36,14 +36,23 @@
                 {%if current_user.is_su%}
                   <a class="nav-item nav-link" href="{{ url_for('su') }}">SuperUser</a>
                 {%endif%}
-                <a class="nav-item nav-link" href="{{ url_for('message') }}">Message</a>
                 <a class="nav-item nav-link" href="{{ url_for('form_group') }}">Form Group</a>
-                <a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
-                <a class="nav-item nav-link" href="{{ url_for('new_post') }}">New Post</a>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Account
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{{ url_for('account') }}">Info</a>
+                    <a class="dropdown-item" href="{{ url_for('group') }}">Group</a>
+                    <a class="dropdown-item" href="{{ url_for('message') }}">Message</a>
+                    <a class="dropdown-item" href="{{ url_for('black_white') }}">Black/Whitelist</a>
+                  </div>
+                </li>
                 <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
-              {%else%}
+                {%else%}
                 <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
                 <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
+                <a class="nav-item nav-link" href="{{ url_for('register1') }}">Register1</a>
               {%endif%}
             </div>
           </div>

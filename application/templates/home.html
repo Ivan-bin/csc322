@@ -1,21 +1,48 @@
-{% extends "layout.html" %}
-{% block content %}
-<body>
-    <article class="media content-section">
-      <div class="media-body">
-          <h2>Top Three Users</h2>
-          {% for user in users %}
-          <p class="article-content">User: {{user.username }}&emsp; Rating: {{user.rating }}</p>
-          {% endfor %}
-      </div>
-    </article>
-    <article class="media content-section">
-      <div class="media-body">
-          <h2>Top Three Projects</h2>
+{%extends "layout.html"%}
+{%block content%}
+<h5 style="text-align: left">Top Three Users</h5>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">User</th>
+        <th scope="col">Email</th>
+        <th scope="col">Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.rating }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <br>
+  <br>
+  <br>
+  <h5 style="text-align: left">Top Three Projects</h5>
+  <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Project</th>
+          <th scope="col">Description</th>
+          <th scope="col">Rating</th>
+        </tr>
+      </thead>
+      <tbody>
           {% for project in projects %}
-          <p class="article-content">{{project.title }}&emsp; Rating: {{project.rating }}</p>
-          {% endfor %}
-      </div>
-    </article>
-</body>
-{% endblock content %}
+          <tr>
+              <td>{{ project.id }}</td>
+              <td>{{ project.title }}</td>
+              <td>{{ project.description }}</td>
+              <td>{{ project.rating }}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+{%endblock%} 
