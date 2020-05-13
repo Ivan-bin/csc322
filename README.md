@@ -2,7 +2,7 @@
 
 # Active Teaming System
 
-This system will facilitate active teaming of people with similar interest and skill-set to forge groups for a certain do-good project. There are four types of users in this system: Super User (SU), Ordinary User (OU)., VIPs and Visitors.
+This system will facilitate active teaming of people with similar interest and skill-set to forge groups for a certain do-good project. There are four types of users in this system: Super User (SU), Ordinary User (OU), VIPs and Visitors.
 
 ## Specifications
 **Super User(SU)** can:
@@ -38,7 +38,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-After successfully installing python we might need(for windows) to install modules to successfully run this software: Flask-sqlalchemy, flask-bcrypt, flask- login, Pillow, flask-wtf and finally email-validator.   A step by step series of examples on the installation guide are as follows:
+After successfully installing python we might need(for windows) to install modules to successfully run this software: Flask-sqlalchemy, flask-bcrypt, flask- login, Pillow, flask-wtf, flask-mail and finally email-validator.   A step by step series of examples on the installation guide are as follows:
 
 -----------------------ON MAC-----------------------------
 
@@ -63,9 +63,9 @@ After successfully installing python we might need(for windows) to install modul
 
 ## Authors
 
-Haibin Mai
-Junior Norabuena
-Sambeg Raj Subedi
+Haibin Mai ,
+Junior Norabuena ,
+Sambeg Raj Subedi ,
 
 
 See also the list of [contributors]
