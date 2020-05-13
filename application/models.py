@@ -114,6 +114,13 @@ class UserBlacklist(db.Model):
     def __repr__(self):
         return f"UserBlacklist('{self.user_blacklisted_id}', '{self.date_posted}')"
 
+class Taboo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(200), nullable=False)
+
+    def __repr__(self):
+        return '<Taboo Word %r>' % self.id
+
 # class BlackBox(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
 #     content=db.Column(db.String(200), nullable=False)
