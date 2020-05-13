@@ -29,7 +29,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('home', complaint_id=complaint.id) }}" method="GET">              <!-- need update url_for-->
+          <form action="{{ url_for('reject_complaint', complaint_id=complaint.id) }}" method="POST">              <!-- need update url_for-->
             <input class="btn btn-danger" type="submit" value="Ignore Complaint">
           </form>
         </div>
@@ -47,7 +47,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('home', complaint_id=complaint.id) }}" method="GET">              <!-- need update url_for-->
+          <form action="{{ url_for('blacklist_user_complaint', complaint_id=complaint.id) }}" method="POST">   
             <input class="btn btn-danger" type="submit" value="Blacklist">
           </form>
         </div>
