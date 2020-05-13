@@ -16,6 +16,8 @@ choices= ['08:00AM to 09:00AM','09:00AM to 10:00AM','10:00AM to 11:00AM','11:00A
     ,'06:00PM to 07:00PM','07:00PM to 08:00PM']
 
 @app.route("/")
+def default():
+    return redirect(url_for('home'))
 @app.route("/home")
 def home():
     if User.query.filter(User.email=='superuser@csc322.edu').first():
@@ -25,6 +27,16 @@ def home():
         user = User(username='superuser',email='superuser@csc322.edu',password=hashed_password,is_su=True)
         db.session.add(user)
         db.session.commit()
+    vips = User.query.filter(User.email!='superuser@csc322.edu').all()
+    for vip in vips:
+        if vip.rating >= 30:
+            vip.is_vip=True
+            db.session.add(vip)
+            db.session.commit()
+        elif vip.rating <= 25:
+            vip.is_vip=False
+            db.session.add(vip)
+            db.session.commit()
     users = User.query.filter(User.email!='superuser@csc322.edu').order_by(User.rating.desc()).limit(3).all()
     projects = Project.query.order_by(Project.rating.desc()).limit(3).all()
     return render_template('home.html', users=users,projects=projects)

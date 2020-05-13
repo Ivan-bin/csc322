@@ -32,6 +32,7 @@ class User(db.Model,UserMixin):
     complaints = db.relationship('Complaint', backref='complainee', lazy=True)
     UserBlacklist = db.relationship('UserBlacklist', backref='user_blacklisted', lazy=True)
     applications = db.relationship('Application', backref='referee', lazy=True)
+    is_vip = db.Column(db.Boolean, default=False, nullable=False)
     is_su = db.Column(db.Boolean, default=False, nullable=False)
     is_blacklisted = db.Column(db.Boolean, default=False, nullable=False)
 
