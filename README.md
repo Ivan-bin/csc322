@@ -2,24 +2,30 @@
 
 # Active Teaming System
 
-This system will facilitate active teaming of people with similar interest and skill-set to forge groups for a certain do-good project. There are three types of users in this system: Super User (SU), Ordinary User (OU) and Guest (GU).
+This system will facilitate active teaming of people with similar interest and skill-set to forge groups for a certain do-good project. There are four types of users in this system: Super User (SU), Ordinary User (OU)., VIPs and Visitors.
 
 ## Specifications
 **Super User(SU)** can:
 - [x] update membership.
 - [x] maintain a list of taboo words.
-- [x] unlock any locked document.
+- [x] shutdown group or punish OUs by score reduction.
 - [x] process complaints about OU's.
 - [x] have all privileges reserved for OU's inside any group.
 
 **Ordinary User(OU)** can:
-// need to write
+- [x] can form group by inviting other OUs.
+- [x] put other OUs in Whitebox or Blackbox.
+- [x] can moderate and post to the group page.
+- [x] ask for meetup polling to find common time for all members to meet.
+- [x] group members can vote to issue warning/praise/kickout/close a group.
+- [x] can complains to SU about group or other OUs.
+- [x] can send compliments about OUs to SU.
 
 **Guest User (GU)** can:
-// need to write
+- [x] view top 3 projects and top rating OUs profile.
+- [x] register to be OU.
+- [x] complain to SU about group or OUs.
 
-**General Features:**
-//need to write
 
 ## Getting Started
 
@@ -32,37 +38,39 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-After successfully installing python we might need to install modules to successfully run this software: Flask-sqlalchemy, flask-bcrypt, flask- login, Pillow, flask-wtf and finally email-validator.   A step by step series of examples on the installation guide are as follows:
+After successfully installing python we might need(for windows) to install modules to successfully run this software: Flask-sqlalchemy, flask-bcrypt, flask- login, Pillow, flask-wtf and finally email-validator.   A step by step series of examples on the installation guide are as follows:
 
------------------------OnN MAC---------------------------------
+-----------------------ON MAC-----------------------------
+
 # TO START
-source env/bin/activate
-python3 app.py
+- [x] source env/bin/activate
+- [x] python app.py
 
-------------------------ON WINDOWS------------------------------
-pip3 install virtualenv
-```
+------------------------ON WINDOWS------------------------
 
-```
-virtualenv env
-```
+# TO START
 
-```
-run env\Scripts\activate
-```
-```
-pip3 install flask-sqlalchemy
-```
-```
-pip3 install flask-bcrypt
-```
-pip3 install flask-login
+- [x] env/Scripts/activate
 
-pip3 install Pillow
+- [x] pip3 install virtualenv
 
-pip3 install flask-wtf
+- [x] virtualenv env
 
-pip3 install email-validator
+- [x] run env\Scripts\activate
+
+- [x] pip3 install flask-sqlalchemy
+
+- [x] pip3 install flask-bcrypt
+
+- [x] pip3 install flask-login
+
+- [x] pip3 install Pillow
+
+- [x] pip3 install flask-wtf
+
+- [x] pip3 install email-validator
+
+- [x] python app.py
 
 ## Built With
 
@@ -79,3 +87,5 @@ Sambeg Raj Subedi
 
 
 See also the list of [contributors]
+Click here:
+https://github.com/Ivan-bin/csc322
