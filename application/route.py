@@ -160,7 +160,7 @@ def new_post(group_title):
     if form.validate_on_submit():
         message = checkMessage(form.content.data.split())
         mess = message[0]
-        if message[1]==0:
+        if message[1]==1:
             user=User.query.filter_by(id=current_user.id).first()
             user.rating-=1
             db.session.add(user)
@@ -228,7 +228,7 @@ def form_group():
             return redirect(url_for('form_group'))
         message = checkMessage(form.content.data.split())
         mess = message[0]
-        if message[1]==0:
+        if message[1]==1:
             user=User.query.filter_by(id=current_user.id).first()
             user.rating-=1
             db.session.add(user)
