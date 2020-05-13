@@ -4,7 +4,7 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ResetPasswordForm, RequestResetForm, FormGroupForm
-from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment, Complaint
+from application.models import Application, ApplicationBlacklist, User, Post, Project, Compliment, Complaint, UserBlacklist
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -355,3 +355,40 @@ def approve_complaint(complaint_id):
         mail.send(msg)
         flash('Complaint has been sent.','success')
         return redirect(url_for('complaints'))
+
+@app.route('/user_blacklist', methods=['POST', 'GET'])
+@login_required
+def user_blacklist():
+    if current_user.is_su:
+        if request.method == 'POST':
+            user_email = request.form['content']
+            user = User.query.filter_by(email=user_email).first()
+            if user:
+                new_user = UserBlacklist(user_blacklisted_id=user.id)
+                try:
+                    user.is_blacklisted = True
+                    db.session.add(new_user)
+                    db.session.commit()
+                    return redirect('user_blacklist')
+                except:
+                    return 'There was an issue adding your word'
+            else:
+                flash('No user with that email.','info')
+                return redirect('user_blacklist')
+        else:
+            users = UserBlacklist.query.order_by(UserBlacklist.id).all()
+            return render_template('user_blacklist.html', users=users)
+
+@app.route('/remove_blacklisted_user/<int:id>',methods=['POST', 'GET'])
+@login_required
+def remove_blacklisted_user(id):
+    if current_user.is_su:
+        user_to_remove = UserBlacklist.query.get_or_404(id)
+        try:
+            user_to_remove.user_blacklisted.is_blacklisted = False
+            db.session.delete(user_to_remove)
+            db.session.commit()
+            flash('Remove','success')
+            return redirect(url_for('user_blacklist'))
+        except:
+            return 'There was a problem deleting that task'
