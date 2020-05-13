@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block content %}
+  <article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="#">{{ compliment.recipient.username + " - " + compliment.recipient.email }}</a>
+            <div>
+                <button type="button" class="btn btn-success btn-sm m-1" data-toggle="modal" data-target="#complimentModal">Compliment</button>
+                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#rejectModal">Reject</button>
+            </div>
+        </div>
+        <p class="article-content">Title : {{ compliment.title }}</p>
+        <p class="article-content">Content :{{ compliment.content }}</p>
+        <p class="article-content">Sender : {{ sender.username}}</p>
+        <p class="article-content">Sender email : {{ sender.email}}</p>
+        <p class="article-content">Date :{{ compliment.date_posted }}</p>
+    </div>
+  </article>
+  <!-- Modal -->
+  <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectModalLabel">Reject Compliment?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('home', compliment_id=compliment.id) }}" method="GET">              <!-- need update url_for-->
+            <input class="btn btn-danger" type="submit" value="Reject">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="complimentModal" tabindex="-1" role="dialog" aria-labelledby="complimentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="complimentModalLabel">Compliment User?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('approve_compliment', compliment_id=compliment.id) }}" method="POST"> 
+            <input class="btn btn-success" type="submit" value="compliment">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
