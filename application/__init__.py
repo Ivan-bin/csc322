@@ -13,11 +13,11 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view= 'login'
 login_manager.login_message_category='info'
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = '@gmail.com'
-app.config['MAIL_PASSWORD'] = 'PASS'
+app.config['MAIL_USERNAME'] = 'jvn.pen.testing@gmail.com'
+app.config['MAIL_PASSWORD'] = 'KAL12345KAL'
 mail = Mail(app)
 
 from application import route
