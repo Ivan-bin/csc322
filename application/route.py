@@ -8,7 +8,7 @@ from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, Fo
     ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1,RequestResetForm,ResetPasswordForm
 from application.models import User, Post, Project, Message1, ProjectMember, Praisewarn,Kick,KickResult ,Close,CloseResult,\
     Whitelist, Blacklist,Application,ApplicationBlacklist, Meeting,MeetingResult, Taboo,PraisewarnResult, WarningList, UserBlacklist,Complaint,Compliment
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, current_user, logout_user, login_required, AnonymousUserMixin
 from flask_mail import Message
 
 choices= ['08:00AM to 09:00AM','09:00AM to 10:00AM','10:00AM to 11:00AM','11:00AM to 12:00PM','12:00AM to 01:00PM',
@@ -588,17 +588,20 @@ def delete_black(list_id):
 @app.route("/grouppage/<string:group_title>", methods=['GET', 'POST'])
 def grouppage(group_title):
     group = Project.query.filter(Project.title==group_title).first_or_404()
-    warninglist = WarningList.query.filter((WarningList.group==group.title) & (WarningList.user==current_user.username)).all()
-    if len(warninglist)>=3:
-        kick_user = User.query.filter(User.id==current_user.id).first()
-        kick_user.rating-=10
-        db.session.add(kick_user)
-        db.session.commit()
-        kick = ProjectMember.query.filter((ProjectMember.project==group.title)&(ProjectMember.member==current_user.id)).first()
-        db.session.delete(kick)
-        db.session.commit()
-        flash('Sorry you got kick from the group','danger')
-        return redirect(url_for('group'))
+    if AnonymousUserMixin:
+        pass
+    else:
+        warninglist = WarningList.query.filter((WarningList.group==group.title) & (WarningList.user==current_user.username)).all()
+        if len(warninglist)>=3:
+            kick_user = User.query.filter(User.id==current_user.id).first()
+            kick_user.rating-=10
+            db.session.add(kick_user)
+            db.session.commit()
+            kick = ProjectMember.query.filter((ProjectMember.project==group.title)&(ProjectMember.member==current_user.id)).first()
+            db.session.delete(kick)
+            db.session.commit()
+            flash('Sorry you got kick from the group','danger')
+            return redirect(url_for('group'))
     getid = ProjectMember.query.filter(ProjectMember.project==group.title).all()
     meeting = Meeting.query.filter_by(group=group.title).first()
     kick = Kick.query.filter_by(group=group.title).first()
