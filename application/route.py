@@ -271,6 +271,28 @@ def approve_application(application_id):
         flash('The application has been approved.','success')
         return redirect(url_for('applications'))
 
+@app.route("/application_list/<int:application_id>/reject", methods=['POST'])
+@login_required
+def reject_application(application_id):
+    if current_user.is_su:
+        application = Application.query.get_or_404(application_id)
+        user = ApplicationBlacklist(application_id=application_id)
+        db.session.add(user)
+        application.is_pending = False
+        db.session.commit()
+        msg = Message('Your Application was Rejected',
+                  sender='noreply@demo.com',
+                  recipients=[application.email])
+        msg.body = f'''Dear
+    {application.name}
+        Your Application has been reviewed and has been rejectedd. 
+        Active Teaming System.
+        '''
+        mail.send(msg)
+
+        flash('The application has been rejected.','success')
+        return redirect(url_for('applications'))
+
 def send_approvedApplication_email(user):
     token = user.get_reset_token()
     msg = Message('Your Application was Approved',
@@ -324,6 +346,16 @@ def approve_compliment(compliment_id):
         flash('Compliment has been sent.','success')
         return redirect(url_for('compliments'))
 
+@app.route("/compliment_list/<int:compliment_id>/reject", methods=['POST'])
+@login_required
+def reject_compliment(compliment_id):
+    if current_user.is_su:
+        user_compliment = Compliment.query.get_or_404(compliment_id)
+        user_compliment.is_pending = False
+        db.session.commit()
+        flash('The compliment has been rejected.','info')
+        return redirect(url_for('compliments'))
+
 @app.route("/complaint_list")
 @login_required
 def complaints():
@@ -364,6 +396,28 @@ def approve_complaint(complaint_id):
     '''
         mail.send(msg)
         flash('Complaint has been sent.','success')
+        return redirect(url_for('complaints'))
+        
+@app.route("/complaint_list/<int:complaint_id>/reject", methods=['POST'])
+@login_required
+def reject_complaint(complaint_id):
+    if current_user.is_su:
+        user_complaint = complaint.query.get_or_404(complaint_id)
+        user_complaint.is_pending = False
+        db.session.commit()
+        flash('The complaint has been rejected.','info')
+        return redirect(url_for('complaints'))
+
+@app.route("/complaint_list/<int:complaint_id>/blacklist_user", methods=['POST'])
+@login_required
+def blacklist_user_complaint(complaint_id):
+    if current_user.is_su:
+        user_complaint = Complaint.query.get_or_404(complaint_id)
+        user_complaint.is_pending = False
+        user = UserBlacklist(user_blacklisted_id=user_complaint.complainee.id)
+        db.session.add(user)
+        db.session.commit()
+        flash('The user has been blacklisted.','info')
         return redirect(url_for('complaints'))
 
 @app.route('/user_blacklist', methods=['POST', 'GET'])
