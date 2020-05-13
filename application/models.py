@@ -31,9 +31,11 @@ class User(db.Model,UserMixin):
     posts = db.relationship('Post', backref='author', lazy=True)
     compliments = db.relationship('Compliment', backref='recipient', lazy=True)
     complaints = db.relationship('Complaint', backref='complainee', lazy=True)
+    UserBlacklist = db.relationship('UserBlacklist', backref='user_blacklisted', lazy=True)
     project = db.relationship('Project', backref='member', lazy=True)
     applications = db.relationship('Application', backref='referee', lazy=True)
     is_su = db.Column(db.Boolean, default=False, nullable=False)
+    is_blacklisted = db.Column(db.Boolean, default=False, nullable=False)
 
     def get_reset_token(self,expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'],expires_sec)
@@ -90,7 +92,7 @@ class Compliment(db.Model):
     is_pending = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Compliment('{self.title}', '{self.date_posted}')"
 
 class Complaint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -102,8 +104,15 @@ class Complaint(db.Model):
     is_pending = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Complaint('{self.title}', '{self.date_posted}')"
 
+class UserBlacklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_blacklisted_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"UserBlacklist('{self.user_blacklisted_id}', '{self.date_posted}')"
 
 # class BlackBox(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
