@@ -25,6 +25,22 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Taken')
+class RequestResetForm(FlaskForm):
+    email = StringField('Email',
+                        validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+    def validate_email(self,email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is None:
+            raise ValidationError('no account with that email')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Request Password Reset')
+
+
 class RegistrationForm1(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
@@ -65,15 +81,9 @@ class PostForm(FlaskForm):
     content = TextAreaField('Content',validators=[DataRequired()])
     submit = SubmitField('Post')
 
-class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Request Password Reset')
-
 class FormGroupForm(FlaskForm):
     title = StringField('Group Title',validators=[DataRequired()])
-    content = TextAreaField('Message (optional)')
+    content = TextAreaField('Group Description',validators=[DataRequired()])
     submit = SubmitField('Send')
 
 class PraiseWarningForm(FlaskForm):

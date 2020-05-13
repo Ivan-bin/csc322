@@ -5,7 +5,7 @@ import datetime
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, FormGroupForm,PraiseWarningForm,CloseForm,CloseAnswerForm\
-    ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1
+    ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1,RequestResetForm,ResetPasswordForm
 from application.models import User, Post, Project, Message1, ProjectMember, Praisewarn,Kick,KickResult ,Close,CloseResult,\
     Whitelist, Blacklist,Application,ApplicationBlacklist, Meeting,MeetingResult, Taboo,PraisewarnResult, WarningList, UserBlacklist,Complaint,Compliment
 from flask_login import login_user, current_user, logout_user, login_required
@@ -67,6 +67,7 @@ def register():
         flash('Your application has been sent.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
 @app.route("/register1", methods=['GET', 'POST'])
 def register1():
     if current_user.is_authenticated:
@@ -143,9 +144,7 @@ def account():
 def new_post(group_title):
     form = PostForm()
     group = Project.query.filter(Project.title==group_title).first_or_404()
-    print('fdfsdds')
     if form.validate_on_submit():
-        print('12312')
         message = checkMessage(form.content.data.split())
         post = Post(content=message,group_id=group.id,author=current_user.username,date_posted=datetime.datetime.now())
         db.session.add(post)
@@ -171,15 +170,30 @@ If you did not make this request then simply ignore this email and no changes wi
 def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-    form = ResetPasswordForm()
+    form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('An email has been sent with instructions to reset your password.', 'info')
+        return redirect(url_for('login'))
+    return render_template('reset_request.html', title='Reset Password', form=form)
+
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token', 'warning')
+        return redirect(url_for('reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_password
         db.session.commit()
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('reset_request.html', title='Reset Password', form=form)
+    return render_template('reset_token.html', title='Reset Password', form=form)
 
 @app.route("/form_group", methods=['GET', 'POST'])
 @login_required
@@ -248,7 +262,7 @@ def application(application_id):
 def approve_application(application_id):
     if current_user.is_su:
         application = Application.query.get_or_404(application_id)
-        user = User(username=application.email, email=application.email, password="$2b$12$xRMPe9Z7xLW6f83Ddv4pBeUCnnd8SV8IZvtmX7FwFHsbFd3fQf6Ke")
+        user = User(username=(application.name+' '+application.last_name), email=application.email, password="$2b$12$xRMPe9Z7xLW6f83Ddv4pBeUCnnd8SV8IZvtmX7FwFHsbFd3fQf6Ke")
         db.session.add(user)
         application.is_pending = False
         db.session.commit()
