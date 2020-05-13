@@ -50,25 +50,7 @@ After successfully installing python we might need(for windows) to install modul
 
 # TO START
 
-- [x] env/Scripts/activate
-
-- [x] pip3 install virtualenv
-
-- [x] virtualenv env
-
-- [x] run env\Scripts\activate
-
-- [x] pip3 install flask-sqlalchemy
-
-- [x] pip3 install flask-bcrypt
-
-- [x] pip3 install flask-login
-
-- [x] pip3 install Pillow
-
-- [x] pip3 install flask-wtf
-
-- [x] pip3 install email-validator
+- [x] .\Scripts\activate
 
 - [x] python app.py
 
