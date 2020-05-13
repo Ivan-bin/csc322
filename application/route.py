@@ -158,7 +158,13 @@ def new_post(group_title):
     group = Project.query.filter(Project.title==group_title).first_or_404()
     if form.validate_on_submit():
         message = checkMessage(form.content.data.split())
-        post = Post(content=message,group_id=group.id,author=current_user.username,date_posted=datetime.datetime.now())
+        mess = message[0]
+        if message[1]==0:
+            user=User.query.filter_by(id=current_user.id).first()
+            user.rating-=1
+            db.session.add(user)
+            db.session.commit()
+        post = Post(content=mess,group_id=group.id,author=current_user.username,date_posted=datetime.datetime.now())
         db.session.add(post)
         db.session.commit()
         flash('Your post has been posted','success')
@@ -220,7 +226,13 @@ def form_group():
             flash('Must select at least one member','danger')
             return redirect(url_for('form_group'))
         message = checkMessage(form.content.data.split())
-        project = Project(title=form.title.data,description=message)
+        mess = message[0]
+        if message[1]==0:
+            user=User.query.filter_by(id=current_user.id).first()
+            user.rating-=1
+            db.session.add(user)
+            db.session.commit()
+        project = Project(title=form.title.data,description=mess)
         db.session.add(project)
         db.session.commit()
         for member in members:
@@ -234,7 +246,7 @@ def form_group():
                     db.session.commit()
                     flash('you are in '+b_user.username +'\'s white list','success')
                 else:
-                    message = Message1(title=form.title.data,content=checkMessage(form.content.data.split()),from_user=current_user.username,to_user=member,mess_type='invite')
+                    message = Message1(title=form.title.data,content=mess,from_user=current_user.username,to_user=member,mess_type='invite')
                     db.session.add(message)
                     db.session.commit()
                     flash('Invite has been sent to ' +b_user.username,'success')
@@ -960,6 +972,7 @@ def checkMessage(message):
     mess = ''
     taboo = Taboo.query.all()
     count = 1
+    yesno =0
     for m in message:
         if taboo == []:
             mess+=m
@@ -970,6 +983,7 @@ def checkMessage(message):
                     mess+=m.replace(m,'*'*len(m))
                     mess+=' '
                     count = 1
+                    yesno = 1
                     break
                 else:
                     if count == len(taboo):
@@ -978,4 +992,4 @@ def checkMessage(message):
                     count+=1
             count = 1
 
-    return mess
+    return [mess,yesno]
