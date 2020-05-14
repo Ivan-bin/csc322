@@ -8,9 +8,9 @@ This system will facilitate active teaming of people with similar interest and s
 **Super User(SU)** can:
 - [x] update membership.
 - [x] maintain a list of taboo words.
-- [] shutdown group or punish OUs by score reduction.
+- [ ] shutdown group or punish OUs by score reduction.
 - [x] process complaints about OU's.
-- [] have all privileges reserved for OU's inside any group.
+- [ ] have all privileges reserved for OU's inside any group.
 
 **Ordinary User(OU)** can:
 - [x] can form group by inviting other OUs.
