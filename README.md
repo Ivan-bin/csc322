@@ -41,6 +41,7 @@ These instructions will get you a copy of the project up and running on your loc
 -----------------------ON MAC/Linux-----------------------
 
 # TO START
+- [x] git clone https://github.com/Ivan-bin/csc322
 - [x] cd csc322
 - [x] source env/bin/activate
 - [x] python app.py
@@ -48,6 +49,7 @@ These instructions will get you a copy of the project up and running on your loc
 ------------------------ON WINDOWS------------------------
 
 # TO START
+- [x] git clone https://github.com/Ivan-bin/csc322
 - [x] cd csc322
 - [x] .\Scripts\activate
 - [x] python app.py
