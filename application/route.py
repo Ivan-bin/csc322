@@ -437,7 +437,7 @@ def complaints():
 def complaint(complaint_id):
     if current_user.is_su:
         complaint = Complaint.query.get_or_404(complaint_id)
-        if complaint.complainant == 0:
+        if complaint.complainant_id == 0:
             complainant = None
         else:
             complainant = User.query.filter_by(id=complaint.complainant_id).first()
