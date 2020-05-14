@@ -46,8 +46,8 @@ def home():
 @app.route("/projects_and_users")
 def projects_and_users():
     page = request.args.get('page',1,type=int)
-    users = User.query.filter(User.email!='superuser@csc322.edu').order_by(User.id.asc()).paginate(page=page, per_page=5)
-    projects = Project.query.order_by(Project.id.asc()).paginate(page=page, per_page=5)
+    users = User.query.filter(User.email!='superuser@csc322.edu').order_by(User.id.asc()).paginate(page=page, per_page=100)
+    projects = Project.query.order_by(Project.id.asc()).paginate(page=page, per_page=100)
     return render_template('projects_and_users.html', users=users,projects=projects)
 
 @app.route("/about")
