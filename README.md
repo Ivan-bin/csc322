@@ -38,7 +38,7 @@ These instructions will get you a copy of the project up and running on your loc
 * [Python3](https://www.python.org/downloads/)
 
 
------------------------ON MAC-----------------------------
+-----------------------ON MAC/Linux-----------------------
 
 # TO START
 - [x] cd csc322
