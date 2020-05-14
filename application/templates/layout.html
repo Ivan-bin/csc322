@@ -27,7 +27,9 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
-              <a class="nav-item nav-link" href="{{ url_for('projects_and_users') }}">Projects/Users</a>
+              <a class="nav-item nav-link" href="{{ url_for('projects_and_users') }}">Projects&Users</a>
+              <a class="nav-item nav-link" href="{{ url_for('sendcompliment') }}">Compliment</a>
+              <a class="nav-item nav-link" href="{{ url_for('sendcomplaint') }}">Complaint</a>
               <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
             </div>
             <!-- Navbar Right Side -->
@@ -35,7 +37,7 @@
               {%if current_user.is_authenticated%}
                 {%if current_user.is_su%}
                   <a class="nav-item nav-link" href="{{ url_for('su') }}">SuperUser</a>
-                {%endif%}
+                {%else%}
                 <a class="nav-item nav-link" href="{{ url_for('form_group') }}">Form Group</a>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -48,6 +50,7 @@
                     <a class="dropdown-item" href="{{ url_for('black_white') }}">Black/Whitelist</a>
                   </div>
                 </li>
+                {%endif%}
                 <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
                 {%else%}
                 <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>

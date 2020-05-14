@@ -12,8 +12,12 @@
         </div>
         <p class="article-content">Title : {{ complaint.title }}</p>
         <p class="article-content">Content :{{ complaint.content }}</p>
+        {%if complainant%}
         <p class="article-content">Complainant : {{ complainant.username}}</p>
         <p class="article-content">Complainant email : {{ complainant.email}}</p>
+        {%else%}
+        <p class="article-content">Complainant : Visitor</p>
+        {%endif%}
         <p class="article-content">Date :{{ complaint.date_posted }}</p>
     </div>
   </article>

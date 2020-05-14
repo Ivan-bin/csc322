@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from flask_login import current_user
+from flask_login import current_user, AnonymousUserMixin
 from wtforms import StringField, PasswordField, SubmitField,TextAreaField, BooleanField,ValidationError, SelectMultipleField, widgets, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
 from application.models import User
@@ -127,3 +127,22 @@ class CloseAnswerForm(FlaskForm):
 class InviteForm(FlaskForm):
     reason = TextAreaField('Reason',validators=[DataRequired()])
     submit = SubmitField('Send')
+
+class ComplimentForm(FlaskForm):
+    if AnonymousUserMixin:
+        users = User.query.filter(User.email!='superuser@csc322.edu').all()
+    else:
+        users = User.query.filter((User.id!=current_user.id)&(User.email!='superuser@csc322.edu')).all()
+    user = SelectField('Select',choices=[(u.id, u.username)for u in users], validators=[DataRequired()], coerce= int)
+    reason = TextAreaField('Reason',validators=[DataRequired()])
+    submit = SubmitField('submit')
+
+class ComplaintForm(FlaskForm):
+    if AnonymousUserMixin:
+        users = User.query.filter(User.email!='superuser@csc322.edu').all()
+    else:
+        users = User.query.filter((User.id!=current_user.id)&(User.email!='superuser@csc322.edu')).all()
+    user = SelectField('Select',choices=[(u.id, u.username)for u in users], validators=[DataRequired()], coerce= int)
+    reason = TextAreaField('Reason',validators=[DataRequired()])
+    submit = SubmitField('submit')
+

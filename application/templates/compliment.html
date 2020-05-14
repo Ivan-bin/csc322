@@ -11,8 +11,12 @@
         </div>
         <p class="article-content">Title : {{ compliment.title }}</p>
         <p class="article-content">Content :{{ compliment.content }}</p>
+        {%if sender%}
         <p class="article-content">Sender : {{ sender.username}}</p>
         <p class="article-content">Sender email : {{ sender.email}}</p>
+        {%else%}
+        <p class="article-content">Sender : Visitor</p>
+        {%endif%}
         <p class="article-content">Date :{{ compliment.date_posted }}</p>
     </div>
   </article>

@@ -5,7 +5,8 @@ import datetime
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, mail
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, FormGroupForm,PraiseWarningForm,CloseForm,CloseAnswerForm,VoteSUForm\
-    ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1,RequestResetForm,ResetPasswordForm
+    ,PostForm, ResetPasswordForm,MeetingForm, KickForm,CloseForm, InviteForm, KickAnswerForm,PWAnswerForm,RegistrationForm1,\
+        RequestResetForm,ResetPasswordForm,ComplaintForm,ComplimentForm
 from application.models import User, Post, Project, Message1, ProjectMember, Praisewarn,Kick,KickResult ,Close,CloseResult,\
     Whitelist, Blacklist,Application,ApplicationBlacklist, Meeting,MeetingResult, Taboo,PraisewarnResult, WarningList, UserBlacklist,Complaint,Compliment
 from flask_login import login_user, current_user, logout_user, login_required, AnonymousUserMixin
@@ -344,8 +345,48 @@ def compliments():
 def compliment(compliment_id):
     if current_user.is_su:
         compliment = Compliment.query.get_or_404(compliment_id)
-        sender = User.query.filter_by(id=compliment.sender_id).first()
+        if compliment.sender_id == 0:
+            sender = None
+        else:
+            sender = User.query.filter_by(id=compliment.sender_id).first()
         return render_template('compliment.html', title=compliment.recipient.email, compliment=compliment, sender=sender)
+
+@app.route("/sendcompliment",methods=['POST','GET'])
+def sendcompliment():
+    form = ComplimentForm()
+    if form.validate_on_submit():
+        title = 'Compliment'
+        content = form.reason.data
+        if AnonymousUserMixin:
+            sender_id = 0
+        else:
+            sender_id = current_user.id
+        recipient_id = form.user.data
+        compliment = Compliment(title=title,content=content,sender_id=sender_id,recipient_id=recipient_id)
+        db.session.add(compliment)
+        db.session.commit()
+        flash('sent','success')
+        return redirect(url_for('home'))
+    return render_template('sendcompliment.html',title='Send Compliment',legent='Compliment',form = form)
+
+@app.route("/sendcomplaint",methods=['POST','GET'])
+def sendcomplaint():
+    form = ComplimentForm()
+    if form.validate_on_submit():
+        print(form.user.data)
+        title = 'Complaint'
+        content = form.reason.data
+        if AnonymousUserMixin:
+            complainant_id = 0
+        else:
+            complainant_id = current_user.id
+        #complainee_id = form.user.data
+        #complaint = Complaint(title=title,content=content,complainant_id=complainant_id,complainee_id=complainee_id)
+        #db.session.add(complaint)
+        #db.session.commit()
+        flash('sent','success')
+        return redirect(url_for('home'))
+    return render_template('sendcomplaint.html',title='Send sendcomplaint',legent='Complaint',form = form)
 
 @app.route("/compliment_list/<int:compliment_id>/approve", methods=['POST'])
 @login_required
@@ -396,7 +437,10 @@ def complaints():
 def complaint(complaint_id):
     if current_user.is_su:
         complaint = Complaint.query.get_or_404(complaint_id)
-        complainant = User.query.filter_by(id=complaint.complainant_id).first()
+        if complaint.complainant == 0:
+            complainant = None
+        else:
+            complainant = User.query.filter_by(id=complaint.complainant_id).first()
         return render_template('complaint.html', title=complaint.complainee.email, complaint=complaint, complainant=complainant)
 
 @app.route("/complaint_list/<int:complaint_id>/approve", methods=['POST'])
