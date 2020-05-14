@@ -8,9 +8,9 @@ This system will facilitate active teaming of people with similar interest and s
 **Super User(SU)** can:
 - [x] update membership.
 - [x] maintain a list of taboo words.
-- [x] shutdown group or punish OUs by score reduction.
+- [ ] shutdown group or punish OUs by score reduction.
 - [x] process complaints about OU's.
-- [x] have all privileges reserved for OU's inside any group.
+- [ ] have all privileges reserved for OU's inside any group.
 
 **Ordinary User(OU)** can:
 - [x] can form group by inviting other OUs.
@@ -36,29 +36,24 @@ These instructions will get you a copy of the project up and running on your loc
 
 * [Python3](https://www.python.org/downloads/)
 
-### Installing
-
-After successfully installing python we might need(for windows) to install modules to successfully run this software: Flask-sqlalchemy, flask-bcrypt, flask- login, Pillow, flask-wtf, flask-mail and finally email-validator.   A step by step series of examples on the installation guide are as follows:
 
 -----------------------ON MAC-----------------------------
 
 # TO START
+- [x] cd csc322
 - [x] source env/bin/activate
 - [x] python app.py
 
 ------------------------ON WINDOWS------------------------
 
 # TO START
-
+- [x] cd csc322
 - [x] .\Scripts\activate
-
 - [x] python app.py
 
 ## Built With
 
 * [Flask] - The python3 API used
-* [csv]- Database Management
-* [draw.io] - To draw use-cases
 
 
 ## Authors
