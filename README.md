@@ -5,6 +5,7 @@
 This system will facilitate active teaming of people with similar interest and skill-set to forge groups for a certain do-good project. There are four types of users in this system: Super User (SU), Ordinary User (OU), VIPs and Visitors.
 
 # To Login as SuperUser - Email: superuser@csc322.edu       Password: super
+# in order to send emails, modify the __init__.py  and add a valid gmail and password.
 ## Specifications
 **Super User(SU)** can:
 - [x] update membership.
